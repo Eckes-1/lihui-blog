@@ -1,0 +1,40 @@
+<% function layoutDiv() { var el='' ; el +='<widget class="widget-wrapper siteinfo">' ; if (item.title) { el
+    +='<div class="widget-header dis-select">' ; el +='<span class="name">' + item.title + '</span>' ; el +='</div>' ; }
+    el +='<div class="widget-body fs14">' ; el +='<div class="grid" style="gap: 12px;">' ; // Posts el
+    +='<div class="flex-row" style="justify-content: space-between; align-items: center;">' ; el
+    +='<div class="flex-row" style="gap: 8px; align-items: center;">' ; el +=icon('solar:documents-bold-duotone'); el
+    +='<span>文章总数</span>' ; el +='</div>' ; el +='<span style="font-weight: bold; font-family: monospace;">' +
+    site.posts.length + '</span>' ; el +='</div>' ; // Categories el
+    +='<div class="flex-row" style="justify-content: space-between; align-items: center;">' ; el
+    +='<div class="flex-row" style="gap: 8px; align-items: center;">' ; el +=icon('default:category'); el
+    +='<span>全部分类</span>' ; el +='</div>' ; el +='<span style="font-weight: bold; font-family: monospace;">' +
+    site.categories.length + '</span>' ; el +='</div>' ; // Tags el
+    +='<div class="flex-row" style="justify-content: space-between; align-items: center;">' ; el
+    +='<div class="flex-row" style="gap: 8px; align-items: center;">' ; el +=icon('solar:hashtag-square-bold'); el
+    +='<span>全部标签</span>' ; el +='</div>' ; el +='<span style="font-weight: bold; font-family: monospace;">' +
+    site.tags.length + '</span>' ; el +='</div>' ; // Last Update var lastUpdate=Date.now(); if (site.posts.length> 0) {
+    try {
+    const lastPost = site.posts.sort('updated', -1).limit(1).toArray()[0];
+    if (lastPost && lastPost.updated) {
+    lastUpdate = lastPost.updated;
+    }
+    } catch(e) {
+    // ignore error
+    }
+    }
+
+    el += '<div class="flex-row" style="justify-content: space-between; align-items: center;">';
+        el += '<div class="flex-row" style="gap: 8px; align-items: center;">';
+            el += icon('default:calendar');
+            el += '<span>最后更新</span>';
+            el += '</div>';
+        el += '<span style="font-size: 0.85em; opacity: 0.8;">' + date(lastUpdate, 'YYYY-MM-DD') + '</span>';
+        el += '</div>';
+
+    el += '</div>';
+    el += '</div>';
+    el += '</widget>';
+    return el;
+    }
+    %>
+    <%- layoutDiv() %>
