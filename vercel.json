@@ -1,0 +1,6 @@
+{
+    "framework": "hexo",
+    "buildCommand": "hexo generate",
+    "outputDirectory": "public",
+    "ignoreCommand": "git diff --quiet HEAD^ HEAD ./"
+}
