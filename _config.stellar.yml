@@ -530,6 +530,13 @@ data_services:
 # 3. 如果这个插件只需要引入外部文件，可以在【步骤 1】处增加 inject 字段，而无需进入【步骤 2】创建 ejs，参考 katex
 plugins:
 
+  # Custom Fonts
+  custom_fonts:
+    enable: true
+    inject: |
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/maple-mono/index.css" />
+
   # preload
   preload:
     enable: true
@@ -642,9 +649,9 @@ style:
     code: 85% # 相较于其所在行的文本大小，建议用百分比
     codeblock: 0.8125rem # 13px
   font-family:
-    body: 'system-ui, "Microsoft Yahei", "Segoe UI", Arial, sans-serif'
-    code: 'Menlo, Monaco, Consolas, system-ui, monospace, sans-serif'
-    codeblock: 'Menlo, Monaco, Consolas, system-ui, monospace, sans-serif'
+    body: '"LXGW WenKai Screen", system-ui, "Microsoft Yahei", "Segoe UI", Arial, sans-serif'
+    code: '"Maple Mono", Menlo, Monaco, Consolas, system-ui, monospace, sans-serif'
+    codeblock: '"Maple Mono", Menlo, Monaco, Consolas, system-ui, monospace, sans-serif'
   text-align: left
   prefix:
     h2: https://api.iconify.design/ci:heading-h2.svg
