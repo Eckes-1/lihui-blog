@@ -3,6 +3,7 @@ stellar:
   version: '1.33.1'
   homepage: 'https://xaoxuu.com/wiki/stellar/'
   repo: 'https://github.com/xaoxuu/hexo-theme-stellar'
+  favicon: /images/avatar.jpg
   main_css: /css/main.css
   main_js: /js/main.js
 
@@ -33,7 +34,7 @@ structured_data:
 ######## Sidebar ########
 # 左上角显示的 logo 区域，包含图标、大标题、副标题
 logo:
-  avatar: '[{config.avatar}](/about/)' # you can set avatar link in _config.yml or '[https://xxx.png](/about/)'
+  avatar: '[/images/avatar.jpg](/about/)' # you can set avatar link in _config.yml or '[https://xxx.png](/about/)'
   title: '[{config.title}](/)' # you can set html tag like: '[<img no-lazy height="32px" src="xxx"/>](/)'
   subtitle: '{config.subtitle}' # '文字1 | 文字2' (鼠标放上去会切换到文字2)
 
@@ -706,10 +707,10 @@ style:
 
 
 default:
-  avatar: https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg
+  avatar: /images/avatar.jpg
   link: https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/link/8f277b4ee0ecd.svg
   cover: https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg
-  image: https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg
+  image: /images/avatar.jpg
   project: https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2779789.png
   banner: https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/banner/books.jpg
   topic: https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/10433048.png
