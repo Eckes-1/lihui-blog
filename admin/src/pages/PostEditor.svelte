@@ -6,6 +6,41 @@ import { marked } from 'marked'
 import { onSSE } from '../lib/sse.js'
 import { onMount, onDestroy } from 'svelte'
 
+marked.use({
+  extensions: [
+    {
+      name: 'highlight',
+      level: 'inline',
+      start(src) { return src.indexOf('==') },
+      tokenizer(src) {
+        const match = src.match(/^==([^=]+)==/)
+        if (match) return { type: 'highlight', raw: match[0], text: match[1] }
+      },
+      renderer(token) { return `<mark>${token.text}</mark>` }
+    },
+    {
+      name: 'footnoteRef',
+      level: 'inline',
+      start(src) { return src.indexOf('[^') },
+      tokenizer(src) {
+        const match = src.match(/^\[\^(\d+)\]/)
+        if (match) return { type: 'footnoteRef', raw: match[0], id: match[1] }
+      },
+      renderer(token) { return `<sup><a href="#fn-${token.id}" id="fnref-${token.id}">[${token.id}]</a></sup>` }
+    },
+    {
+      name: 'footnoteDef',
+      level: 'block',
+      start(src) { return src.indexOf('[^') },
+      tokenizer(src) {
+        const match = src.match(/^\[\^(\d+)\]:\s+(.+)(?:\n|$)/)
+        if (match) return { type: 'footnoteDef', raw: match[0], id: match[1], text: match[2] }
+      },
+      renderer(token) { return `<p id="fn-${token.id}">[${token.id}] ${token.text}</p>` }
+    }
+  ]
+})
+
 let { routeParams, route } = $props()
 
 let isEdit = $derived(route.includes('/edit'))
@@ -258,10 +293,19 @@ function wrapLine(prefix) {
   const line = val.substring(lineStart, lineEnd)
   if (line.startsWith(prefix)) {
     content = val.substring(0, lineStart) + line.substring(prefix.length) + val.substring(lineEnd)
+    requestAnimationFrame(() => {
+      textareaEl.focus()
+      const newStart = Math.max(lineStart, start - prefix.length)
+      textareaEl.setSelectionRange(newStart, newStart)
+    })
   } else {
     content = val.substring(0, lineStart) + prefix + line + val.substring(lineEnd)
+    requestAnimationFrame(() => {
+      textareaEl.focus()
+      const newStart = start + prefix.length
+      textareaEl.setSelectionRange(newStart, newStart)
+    })
   }
-  textareaEl.focus()
 }
 
 const toolbarActions = [
@@ -282,7 +326,13 @@ const toolbarActions = [
   { icon: 'mdi:format-quote-close', title: '引用', action: () => wrapLine('> ') },
   { icon: 'mdi:minus', title: '分割线', action: () => insertAtCursor('\n---\n') },
   { icon: 'mdi:table', title: '表格', action: () => insertAtCursor('\n| 列1 | 列2 | 列3 |\n| --- | --- | --- |\n| 内容 | 内容 | 内容 |\n') },
-  { icon: 'mdi:superscript', title: '脚注', action: () => insertMarkdown('[^', ']', '1') },
+  { icon: 'mdi:superscript', title: '脚注', action: () => {
+    const num = (content.match(/\[\^(\d+)\]/g) || []).length + 1
+    insertAtCursor(`[^${num}]`)
+    setTimeout(() => {
+      content += `\n[^${num}]: 脚注内容`
+    }, 10)
+  }},
 ]
 
 function handleKeydown(e) {
