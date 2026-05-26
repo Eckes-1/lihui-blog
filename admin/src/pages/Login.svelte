@@ -411,7 +411,7 @@ function handleKeydown(e) {
           type="text"
           bind:value={captchaAnswer}
           placeholder="请输入验证码"
-          maxlength="4"
+          maxlength="6"
           class="flex-1 px-3 py-2 bg-white/50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg text-center text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 tracking-widest text-lg font-medium outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-500"
           onkeydown={(e) => { if (e.key === 'Enter') verifyCaptchaAndSend() }}
         />

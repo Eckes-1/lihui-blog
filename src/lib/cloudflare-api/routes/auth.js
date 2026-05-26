@@ -107,7 +107,7 @@ const captchaStore = new Map()
 function generateCaptcha() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
   let text = ''
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     text += chars.charAt(Math.floor(Math.random() * chars.length))
   }
   const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
@@ -117,7 +117,7 @@ function generateCaptcha() {
 }
 
 function generateCaptchaSvg(text) {
-  const width = 160
+  const width = 220
   const height = 60
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`
   svg += `<rect width="${width}" height="${height}" fill="#f0f0f0" rx="8"/>`
@@ -136,7 +136,7 @@ function generateCaptchaSvg(text) {
   }
   const colors = ['#2d5a8e', '#8e2d5a', '#5a8e2d', '#8e5a2d', '#2d8e5a', '#5a2d8e']
   for (let i = 0; i < text.length; i++) {
-    const x = 25 + i * 32
+    const x = 20 + i * 32
     const y = 38 + (Math.random() - 0.5) * 10
     const rotate = (Math.random() - 0.5) * 20
     const color = colors[Math.floor(Math.random() * colors.length)]

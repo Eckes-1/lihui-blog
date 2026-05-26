@@ -83,6 +83,10 @@ app.use('/api/*', async (c, next) => {
     await next()
     return
   }
+  if (path.endsWith('/captcha') || path.endsWith('/verify-captcha')) {
+    await next()
+    return
+  }
   if (path === '/api/dashboard/stream') {
     await next()
     return
