@@ -866,7 +866,7 @@ function handleStatTypeClick(type) {
         </button>
         <div class="relative">
           <button
-            onclick={() => showBatchCopyMenu = !showBatchCopyMenu}
+            onclick={(e) => { e.stopPropagation(); showBatchCopyMenu = !showBatchCopyMenu }}
             class="px-2.5 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 text-xs hover:bg-white/80 dark:hover:bg-gray-700/80 transition-colors flex items-center gap-1 shrink-0"
           >
             <Icon icon="mdi:content-copy" width="13" height="13" />
@@ -874,7 +874,7 @@ function handleStatTypeClick(type) {
             <Icon icon="mdi:chevron-down" width="12" height="12" />
           </button>
           {#if showBatchCopyMenu}
-            <div class="absolute left-0 top-full mt-1 z-20 bg-white/95 dark:bg-gray-800/95 backdrop-blur-2xl rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-1 min-w-[140px]">
+            <div class="absolute left-0 top-full mt-1 z-20 bg-white/95 dark:bg-gray-800/95 backdrop-blur-2xl rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-1 min-w-[140px]" onclick={(e) => e.stopPropagation()}>
               <button onclick={() => { batchCopyUrls(); showBatchCopyMenu = false }} class="w-full px-3 py-1.5 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors">
                 <Icon icon="mdi:link-variant" width="14" height="14" class="text-gray-400 dark:text-gray-500" />
                 复制链接
