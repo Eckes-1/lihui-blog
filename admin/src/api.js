@@ -80,6 +80,15 @@ function getTokenDuration() {
 export function startSessionMonitor() {
   stopSessionMonitor()
   const duration = getTokenDuration()
+  if (duration > 0 && duration < 50 * 60 * 1000) {
+    setToken(null)
+    setUser(null)
+    addToast('会话时长已更新为1小时，请重新登录', 'warning')
+    if (typeof location !== 'undefined') {
+      location.hash = '#/login'
+    }
+    return
+  }
   if (duration > SESSION_DURATION + 60000) {
     setToken(null)
     setUser(null)
