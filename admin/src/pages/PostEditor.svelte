@@ -59,7 +59,7 @@ let imageCount = $derived((content.match(/!\[.*?\]\(.*?\)/g) || []).length)
 let linkCount = $derived((content.match(/\[.*?\]\(.*?\)/g) || []).length - imageCount)
 let wordGoalProgress = $derived(wordGoal > 0 ? Math.min(100, Math.round(wordCount / wordGoal * 100)) : 0)
 
-let tocItems = $derived(() => {
+let tocItems = $derived.by(() => {
   const headings = []
   const regex = /^(#{1,6})\s+(.+)$/gm
   let match
@@ -876,9 +876,9 @@ let seoUrl = $derived(`momo-blog.pages.dev/blog/${slug || 'post-slug'}`)
             </button>
           </div>
           {#if showToc}
-            {#if tocItems().length > 0}
+            {#if tocItems.length > 0}
               <div class="space-y-0.5 max-h-48 overflow-y-auto">
-                {#each tocItems() as item}
+                {#each tocItems as item}
                   <div
                     class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer truncate transition-colors"
                     style="padding-left: {(item.level - 1) * 12}px"
