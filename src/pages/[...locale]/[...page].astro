@@ -1,0 +1,126 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro';
+import Cover from '@components/Cover.astro';
+import PostPage from '@components/PostPage.astro';
+import Navi from '@components/control/Navi.astro';
+import FabMenu from '@components/control/FabMenu.astro';
+
+import { getPosts } from '@utils/api';
+import { getDynamicSiteConfig } from '@utils/dynamic-config';
+import { calculateReadingTime } from '@utils/markdown';
+import { i18n } from "astro:config/client";
+import { getRelativeLocaleUrl } from '@utils/url-utils';
+
+import i18nit from '@i18n/translation'
+
+const knownLocales = i18n!.locales.map(l => typeof l === 'string' ? l : l.path);
+const defaultLocale = i18n!.defaultLocale;
+
+let pageNum: number = 1;
+
+const localeParam = Astro.params.locale;
+const pageParam = Astro.params.page;
+
+if (localeParam) {
+  if (knownLocales.includes(localeParam) && localeParam !== defaultLocale) {
+    // locale param is a valid non-default locale, page stays 1
+  } else if (/^\d+$/.test(localeParam)) {
+    pageNum = parseInt(localeParam) || 1;
+  } else if (localeParam === defaultLocale) {
+    const target = pageParam && /^\d+$/.test(pageParam) ? `/${pageParam}/` : '/'
+    return Astro.redirect(target);
+  } else {
+    return Astro.redirect('/404');
+  }
+}
+
+if (pageParam) {
+  if (/^\d+$/.test(pageParam)) {
+    pageNum = parseInt(pageParam) || 1;
+  } else {
+    return Astro.redirect('/404');
+  }
+}
+
+const currentLangResolved = Astro.currentLocale || defaultLocale;
+const t = i18nit(currentLangResolved);
+
+const db = Astro.locals.runtime?.env?.DB || (globalThis as any).__D1_DB || null;
+
+let siteConfig: any;
+let postsData: any;
+
+try {
+  siteConfig = await getDynamicSiteConfig(db);
+} catch (e) {
+  console.error('[HomePage] Failed to get site config:', e);
+  siteConfig = {
+    title: 'Momo',
+    subTitle: 'Blog',
+    pageSize: 6,
+  };
+}
+
+const pageSize = siteConfig.pageSize;
+
+try {
+  postsData = await getPosts({ page: pageNum, pageSize, draft: 'false', db });
+} catch (e) {
+  console.error('[HomePage] Failed to get posts:', e);
+  postsData = { posts: [], pagination: { page: pageNum, pageSize, total: 0, totalPages: 0 } };
+}
+
+const posts = (postsData.posts || []).map((post: any) => {
+  const readingTime = calculateReadingTime(post.content || post.description || '');
+  return {
+    id: String(post.slug_id || post.id),
+    data: {
+      title: post.title,
+      pubDate: new Date(post.pub_date),
+      draft: post.draft,
+      description: post.description || '',
+      image: post.image || '',
+      slugId: post.slug_id || '',
+      category: post.category || '',
+      pinTop: post.pin_top || 0,
+    },
+    isFallback: false,
+    words: readingTime.words,
+    minutes: readingTime.minutes,
+  };
+});
+
+if (pageNum > 1 && posts.length === 0) {
+  return Astro.redirect('/404');
+}
+
+const totalCount = postsData.pagination?.total || postsData.total || posts.length;
+const totalPages = postsData.pagination?.totalPages || Math.ceil(totalCount / pageSize);
+
+const offset = (pageNum - 1) * pageSize;
+const page = {
+  data: posts,
+  start: offset,
+  end: offset + posts.length,
+  size: pageSize,
+  total: totalCount,
+  currentPage: pageNum,
+  lastPage: totalPages,
+  url: {
+    current: pageNum === 1 ? getRelativeLocaleUrl(currentLangResolved, '/') : getRelativeLocaleUrl(currentLangResolved, `/${pageNum}/`),
+    prev: pageNum > 1 ? (pageNum - 1 === 1 ? getRelativeLocaleUrl(currentLangResolved, '/') : getRelativeLocaleUrl(currentLangResolved, `/${pageNum - 1}/`)) : undefined,
+    next: pageNum < totalPages ? getRelativeLocaleUrl(currentLangResolved, `/${pageNum + 1}/`) : undefined,
+    first: getRelativeLocaleUrl(currentLangResolved, '/'),
+    last: getRelativeLocaleUrl(currentLangResolved, `/${totalPages}/`),
+  },
+};
+
+const pageTitle = `${siteConfig.title} - ${siteConfig.subTitle}`;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLangResolved}>
+    <Cover title={t("cover.title.home")} subTitle={t("cover.subTitle.home")} />
+    <PostPage page={page} />
+    <Navi page={page} />
+    <FabMenu showBackBottom={true} />
+</MainPageLayout>

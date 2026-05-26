@@ -1,0 +1,48 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import ArchivePanel from '@components/ArchivePanel.svelte'
+import FabMenu from '@components/control/FabMenu.astro'
+import { getDynamicSiteConfig } from '@utils/dynamic-config'
+import { getAllPosts } from '@utils/api'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+const db = Astro.locals.runtime?.env?.DB || (globalThis as any).__D1_DB || null;
+
+let siteConfig: any;
+let allPostsData: any;
+try {
+  siteConfig = await getDynamicSiteConfig(db);
+  allPostsData = await getAllPosts(db);
+} catch (e) {
+  console.error('[ArchivesPage] Failed to get data:', e);
+  siteConfig = { title: 'Momo' };
+  allPostsData = { posts: [] };
+}
+const allPosts = (allPostsData.posts || []).map((post: any) => ({
+  id: String(post.slug_id || post.id),
+  data: {
+    title: post.title,
+    pubDate: new Date(post.pub_date),
+    category: post.category || '',
+  },
+  isFallback: false,
+}));
+
+allPosts.sort((a: any, b: any) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const pageTitle = t("header.archive") + " - " + siteConfig.title;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+    <ArchivePanel
+        client:only="svelte"
+        sortedPosts={allPosts}
+        currentLang={currentLang}
+        defaultLocale={i18n!.defaultLocale}
+    />
+    <FabMenu showBackBottom={true} />
+</MainPageLayout>

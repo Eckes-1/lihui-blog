@@ -1,0 +1,62 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import { getDynamicSiteConfig, getDynamicFriendLinks } from '@utils/dynamic-config'
+import Cover from '@components/Cover.astro';
+
+import i18nit from '@i18n/translation';
+import { i18n } from "astro:config/client";
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+const db = Astro.locals.runtime?.env?.DB || (globalThis as any).__D1_DB || null;
+
+let siteConfig: any;
+let friendLinkConfig: any;
+try {
+  siteConfig = await getDynamicSiteConfig(db);
+  friendLinkConfig = await getDynamicFriendLinks(db);
+} catch (e) {
+  console.error('[FriendsPage] Failed to get data:', e);
+  siteConfig = { title: 'Momo' };
+  friendLinkConfig = [];
+}
+
+const pageTitle = t("header.friends") + " - " + siteConfig.title;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+    <div class="mx-auto w-full max-w-[var(--page-width)]">
+        <Cover title={t("cover.title.friends")} subTitle={t("cover.subTitle.friends")} />
+
+        {friendLinkConfig.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-[var(--text-color)] mb-12">
+            {
+                friendLinkConfig.map((friend) => (
+                    <a
+                        href={friend.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex items-center p-4 border border-[var(--button-border-color)] rounded-lg shadow-sm active:bg-[var(--button-hover-color)] hover:bg-[var(--button-hover-color)] transition-all duration-300 hover:scale-105"
+                    >
+                        <img
+                            src={friend.avatar}
+                            alt={friend.name}
+                            class="w-16 h-16 rounded-full object-cover mr-4"
+                            onerror="this.src='https://www.gravatar.com/avatar/?d=mp'"
+                        />
+                        <div class="flex-1 min-w-0">
+                            <h2 class="font-bold text-lg truncate">{friend.name}</h2>
+                            <p class="text-[var(--text-color-70)] text-sm">{friend.description}</p>
+                        </div>
+                    </a>
+                ))
+            }
+        </div>
+      ) : (
+        <div class="text-center py-16 text-[var(--text-color-70)]">
+          <p class="text-lg">{t("friends.empty") || '暂无友链'}</p>
+        </div>
+      )}
+    </div>
+</MainPageLayout>

@@ -1,0 +1,43 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import Markdown from '@components/misc/Markdown.astro'
+import Cover from '@components/Cover.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+
+import { getSpec } from '@utils/content-utils'
+
+import { getDynamicSiteConfig } from '@utils/dynamic-config'
+import i18nit from '@i18n/translation'
+import { render } from 'astro:content'
+import { i18n } from "astro:config/client";
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+const db = Astro.locals.runtime?.env?.DB || (globalThis as any).__D1_DB || null;
+
+let siteConfig: any;
+try {
+  siteConfig = await getDynamicSiteConfig(db);
+} catch (e) {
+  console.error('[AboutPage] Failed to get config:', e);
+  siteConfig = { title: 'Momo' };
+}
+
+const aboutPost = await getSpec(currentLang, 'about');
+if (!aboutPost) {
+  return Astro.redirect('/404');
+}
+const { Content } = await render(aboutPost);
+
+const pageTitle = t("header.about") + " - " + siteConfig.title;
+---
+<MainPageLayout title={pageTitle} lang={currentLang}>
+    <div class="mx-auto w-full max-w-[var(--page-width)]">
+        <Cover title={t("cover.title.about")} subTitle={t("cover.subTitle.about")}/>
+        <Markdown class="mb-6 markdown-content onload-animation">
+            <Content />
+        </Markdown>
+    </div>
+    <FabMenu showBackBottom={true} />
+</MainPageLayout>

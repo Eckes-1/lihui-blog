@@ -1,0 +1,20 @@
+---
+import PostCard from '@components/PostCard.astro';
+
+const { page } = Astro.props;
+
+---
+{(page?.data || []).map((entry: any) => (
+        <PostCard
+            title={entry.data.title}
+            description={entry.data.description}
+            image={entry.data.image}
+            pubDate={entry.data.pubDate}
+            url={entry.id}
+            fallback={entry.isFallback || false}
+            pinTop={entry.data.pinTop || 0}
+            category={entry.data.category || ''}
+            words={entry.words || 0}
+            minutes={entry.minutes || 0}>
+        </PostCard>
+))}

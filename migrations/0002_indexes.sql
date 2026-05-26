@@ -1,0 +1,10 @@
+CREATE INDEX IF NOT EXISTS idx_posts_slug_id ON posts(slug_id);
+CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category);
+CREATE INDEX IF NOT EXISTS idx_posts_draft ON posts(draft);
+CREATE INDEX IF NOT EXISTS idx_posts_pin_top_pub_date ON posts(pin_top, pub_date);
+CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON comments(parent_id);
+CREATE INDEX IF NOT EXISTS idx_comments_approved ON comments(approved);
+CREATE INDEX IF NOT EXISTS idx_comments_deleted ON comments(deleted);
+CREATE INDEX IF NOT EXISTS idx_friend_links_sort ON friend_links(sort_order);
+CREATE INDEX IF NOT EXISTS idx_site_config_key ON site_config(key);
