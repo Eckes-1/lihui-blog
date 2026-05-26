@@ -839,7 +839,7 @@ function handleStatTypeClick(type) {
       </div>
       <span class="text-xs text-blue-600 dark:text-blue-400 shrink-0">{uploadPercent}%</span>
       {#if uploadTotal > 1}
-        <span class="text-xs text-blue-500 dark:text-blue-500 shrink-0 hidden sm:inline">{uploadCurrent}/{uploadTotal}</span>
+        <span class="text-xs text-blue-500 dark:text-blue-500 shrink-0">{uploadCurrent}/{uploadTotal}</span>
       {/if}
       {#if uploadFileName}
         <span class="text-xs text-blue-400 dark:text-blue-500 truncate max-w-[80px] sm:max-w-[120px]">{uploadFileName}</span>
@@ -1014,7 +1014,7 @@ function handleStatTypeClick(type) {
     <select
       value={pageSize}
       onchange={handlePageSizeChange}
-      class="hidden sm:block px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 text-xs outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 shrink-0"
+      class="px-2 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 text-xs outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 shrink-0"
       title="每页数量"
     >
       <option value={20}>20条</option>
@@ -1036,7 +1036,7 @@ function handleStatTypeClick(type) {
       </button>
     </div>
     {#if viewMode === 'grid'}
-      <div class="hidden sm:flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
+      <div class="flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0">
         <button onclick={() => gridSize = 'sm'} class="p-1.5 {gridSize === 'sm' ? 'bg-gray-900/80 dark:bg-gray-100/80 text-white dark:text-gray-900' : 'bg-white/50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400'} transition-colors" title="小图标">
           <Icon icon="mdi:view-grid-compact" width="14" height="14" />
         </button>
@@ -1223,16 +1223,19 @@ function handleStatTypeClick(type) {
                         <Icon icon="mdi:magnify-plus" width="13" height="13" class="text-gray-400 dark:text-gray-500" />
                       </button>
                     {/if}
+                    <button onclick={(e) => { e.stopPropagation(); openFile(item) }} class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0" title="打开">
+                      <Icon icon="mdi:open-in-new" width="13" height="13" class="text-gray-400 dark:text-gray-500" />
+                    </button>
                     <button onclick={(e) => { e.stopPropagation(); openDetail(item) }} class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0" title="编辑">
                       <Icon icon="mdi:pencil" width="13" height="13" class="text-gray-400 dark:text-gray-500" />
                     </button>
                     <button onclick={(e) => { e.stopPropagation(); downloadFile(item) }} class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0" title="下载">
                       <Icon icon="mdi:download" width="13" height="13" class="text-gray-400 dark:text-gray-500" />
                     </button>
-                    <button onclick={(e) => { e.stopPropagation(); copyUrl(fileUrl) }} class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0 hidden sm:block" title="复制链接">
+                    <button onclick={(e) => { e.stopPropagation(); copyUrl(fileUrl) }} class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0" title="复制链接">
                       <Icon icon="mdi:content-copy" width="13" height="13" class="text-gray-400 dark:text-gray-500" />
                     </button>
-                    <button onclick={(e) => { e.stopPropagation(); copyMarkdown(item) }} class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0 hidden md:block" title="Markdown">
+                    <button onclick={(e) => { e.stopPropagation(); copyMarkdown(item) }} class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shrink-0" title="Markdown">
                       <Icon icon="mdi:language-markdown" width="13" height="13" class="text-gray-400 dark:text-gray-500" />
                     </button>
                   </div>
@@ -1266,7 +1269,7 @@ function handleStatTypeClick(type) {
   >
     <div class="absolute top-3 left-3 z-10 flex items-center gap-2 max-w-[50%]">
       <span class="text-xs text-white/60">{lightboxIdx + 1}/{mediaList.length}</span>
-      <span class="text-xs text-white/40 truncate hidden sm:inline">{lbItem.filename}</span>
+      <span class="text-xs text-white/40 truncate">{lbItem.filename}</span>
     </div>
     <div class="absolute top-3 right-3 z-10 flex items-center gap-1.5">
       <button onclick={(e) => { e.stopPropagation(); lightboxZoom = 1; lightboxPan = { x: 0, y: 0 } }} class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/70" title="重置缩放 (0)">
