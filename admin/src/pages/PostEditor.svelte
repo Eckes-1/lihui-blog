@@ -313,12 +313,28 @@ const toolbarActions = [
   { icon: 'mdi:format-header-2', title: '二级标题', action: () => wrapLine('## ') },
   { icon: 'mdi:format-header-3', title: '三级标题', action: () => wrapLine('### ') },
   { icon: 'mdi:format-bold', title: '加粗 (Ctrl+B)', action: () => insertMarkdown('**', '**', '粗体文字') },
-  { icon: 'mdi:format-italic', title: '斜体 (Ctrl+I)', action: () => insertMarkdown('*', '*', '斜体文字') },
+  { icon: 'mdi:format-italic', title: '斜体 (Ctrl+I)', action: () => insertMarkdown('_', '_', '斜体文字') },
   { icon: 'mdi:format-strikethrough', title: '删除线', action: () => insertMarkdown('~~', '~~', '删除线文字') },
   { icon: 'mdi:format-color-highlight', title: '高亮', action: () => insertMarkdown('==', '==', '高亮文字') },
   { icon: 'mdi:code-tags', title: '行内代码', action: () => insertMarkdown('`', '`', 'code') },
   { icon: 'mdi:code-braces', title: '代码块', action: () => insertMarkdown('\n```\n', '\n```\n', '代码') },
-  { icon: 'mdi:link-variant', title: '链接 (Ctrl+K)', action: () => insertMarkdown('[', '](url)', '链接文字') },
+  { icon: 'mdi:link-variant', title: '链接 (Ctrl+K)', action: () => {
+    if (!textareaEl) return
+    const start = textareaEl.selectionStart
+    const end = textareaEl.selectionEnd
+    const selected = content.substring(start, end)
+    if (selected) {
+      insertMarkdown('[', '](url)', selected)
+    } else {
+      insertMarkdown('[', '](url)', '链接文字')
+    }
+    requestAnimationFrame(() => {
+      const urlStart = content.indexOf('](url)', start)
+      if (urlStart !== -1) {
+        textareaEl.setSelectionRange(urlStart + 2, urlStart + 5)
+      }
+    })
+  }},
   { icon: 'mdi:image-outline', title: '插入图片', action: () => { showInsertMedia = true; loadInsertMedia() } },
   { icon: 'mdi:format-list-bulleted', title: '无序列表', action: () => wrapLine('- ') },
   { icon: 'mdi:format-list-numbered', title: '有序列表', action: () => wrapLine('1. ') },
@@ -327,7 +343,8 @@ const toolbarActions = [
   { icon: 'mdi:minus', title: '分割线', action: () => insertAtCursor('\n---\n') },
   { icon: 'mdi:table', title: '表格', action: () => insertAtCursor('\n| 列1 | 列2 | 列3 |\n| --- | --- | --- |\n| 内容 | 内容 | 内容 |\n') },
   { icon: 'mdi:superscript', title: '脚注', action: () => {
-    const num = (content.match(/\[\^(\d+)\]/g) || []).length + 1
+    const refs = content.match(/\[\^(\d+)\](?!:)/g) || []
+    const num = refs.length + 1
     insertAtCursor(`[^${num}]`)
     setTimeout(() => {
       content += `\n[^${num}]: 脚注内容`
@@ -350,12 +367,26 @@ function handleKeydown(e) {
   }
   if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
     e.preventDefault()
-    insertMarkdown('*', '*', '斜体文字')
+    insertMarkdown('_', '_', '斜体文字')
   }
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-    e.preventDefault()
-    insertMarkdown('[', '](url)', '链接文字')
-  }
+      e.preventDefault()
+      if (!textareaEl) return
+      const start = textareaEl.selectionStart
+      const end = textareaEl.selectionEnd
+      const selected = content.substring(start, end)
+      if (selected) {
+        insertMarkdown('[', '](url)', selected)
+      } else {
+        insertMarkdown('[', '](url)', '链接文字')
+      }
+      requestAnimationFrame(() => {
+        const urlStart = content.indexOf('](url)', start)
+        if (urlStart !== -1) {
+          textareaEl.setSelectionRange(urlStart + 2, urlStart + 5)
+        }
+      })
+    }
   if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'I') {
     e.preventDefault()
     showInsertMedia = true
