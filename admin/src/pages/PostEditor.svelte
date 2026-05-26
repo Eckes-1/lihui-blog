@@ -313,12 +313,19 @@ let findText = $state('')
 let replaceText = $state('')
 let findResults = $state([])
 let findIndex = $state(-1)
+let showEmojiPicker = $state(false)
+let showSpecialChars = $state(false)
+
+const emojiList = ['😀','😂','🥰','😎','🤔','👍','👎','❤️','🔥','⭐','🎉','💡','📌','✅','❌','⚠️','📝','🔗','🖼️','💻','🚀','🎯','📊','💬','🙏','👏','💪','🌟','📖','🎵','🎬','🌍','🏠','🔒','🔑','⚡','🌈','🍀','🎁','🏆','💎']
+const specialChars = ['&amp;','&lt;','&gt;','&nbsp;','&copy;','&reg;','&trade;','&mdash;','&ndash;','&hellip;','&laquo;','&raquo;','&deg;','&plusmn;','&times;','&divide;','&infin;','&ne;','&le;','&ge;','&rarr;','&larr;','&uarr;','&darr;','&hearts;','&spades;','&clubs;','&diams;','&euro;','&pound;','&yen;','&cent;']
 
 const toolbarActions = [
   { icon: 'mdi:format-header-1', title: '一级标题', action: () => wrapLine('# ') },
   { icon: 'mdi:format-header-2', title: '二级标题', action: () => wrapLine('## ') },
   { icon: 'mdi:format-header-3', title: '三级标题', action: () => wrapLine('### ') },
   { icon: 'mdi:format-header-4', title: '四级标题', action: () => wrapLine('#### ') },
+  { icon: 'mdi:format-header-5', title: '五级标题', action: () => wrapLine('##### ') },
+  { icon: 'mdi:format-header-6', title: '六级标题', action: () => wrapLine('###### ') },
   { type: 'separator' },
   { icon: 'mdi:format-bold', title: '加粗 (Ctrl+B)', action: () => insertMarkdown('**', '**', '粗体文字') },
   { icon: 'mdi:format-italic', title: '斜体 (Ctrl+I)', action: () => insertMarkdown('_', '_', '斜体文字') },
@@ -326,6 +333,30 @@ const toolbarActions = [
   { icon: 'mdi:format-color-highlight', title: '高亮', action: () => insertMarkdown('==', '==', '高亮文字') },
   { icon: 'mdi:format-superscript', title: '上标', action: () => insertMarkdown('^', '^', '上标') },
   { icon: 'mdi:format-subscript', title: '下标', action: () => insertMarkdown('~', '~', '下标') },
+  { icon: 'mdi:format-align-center', title: '居中对齐', action: () => insertMarkdown('\n<div align="center">\n\n', '\n\n</div>\n', '居中内容') },
+  { icon: 'mdi:format-align-right', title: '右对齐', action: () => insertMarkdown('\n<div align="right">\n\n', '\n\n</div>\n', '右对齐内容') },
+  { icon: 'mdi:format-clear', title: '清除格式', action: () => {
+    if (!textareaEl) return
+    const start = textareaEl.selectionStart
+    const end = textareaEl.selectionEnd
+    if (start === end) return
+    let selected = content.substring(start, end)
+    selected = selected.replace(/\*\*(.+?)\*\*/g, '$1')
+    selected = selected.replace(/_(.+?)_/g, '$1')
+    selected = selected.replace(/~~(.+?)~~/g, '$1')
+    selected = selected.replace(/==(.+?)==/g, '$1')
+    selected = selected.replace(/`(.+?)`/g, '$1')
+    selected = selected.replace(/\[(.+?)\]\(.+?\)/g, '$1')
+    selected = selected.replace(/^#{1,6}\s/gm, '')
+    selected = selected.replace(/^>\s/gm, '')
+    selected = selected.replace(/^[-*]\s/gm, '')
+    selected = selected.replace(/^\d+\.\s/gm, '')
+    content = content.substring(0, start) + selected + content.substring(end)
+    requestAnimationFrame(() => {
+      textareaEl.focus()
+      textareaEl.setSelectionRange(start, start + selected.length)
+    })
+  }},
   { type: 'separator' },
   { icon: 'mdi:code-tags', title: '行内代码', action: () => insertMarkdown('`', '`', 'code') },
   { icon: 'mdi:code-braces', title: '代码块', action: () => insertMarkdown('\n```\n', '\n```\n', '代码') },
@@ -349,12 +380,15 @@ const toolbarActions = [
       }
     })
   }},
+  { icon: 'mdi:anchor', title: '锚点', action: () => insertAtCursor('\n<a id="anchor-name"></a>\n') },
   { icon: 'mdi:image-outline', title: '插入图片', action: () => { showInsertMedia = true; loadInsertMedia() } },
   { icon: 'mdi:video-outline', title: '插入视频', action: () => insertAtCursor('\n<video src="" controls width="100%"></video>\n') },
+  { icon: 'mdi:music-note', title: '插入音频', action: () => insertAtCursor('\n<audio src="" controls></audio>\n') },
   { type: 'separator' },
   { icon: 'mdi:format-list-bulleted', title: '无序列表', action: () => wrapLine('- ') },
   { icon: 'mdi:format-list-numbered', title: '有序列表', action: () => wrapLine('1. ') },
   { icon: 'mdi:checkbox-marked-outline', title: '任务列表', action: () => wrapLine('- [ ] ') },
+  { icon: 'mdi:format-list-checks', title: '定义列表', action: () => insertAtCursor('\n<dl>\n  <dt>术语</dt>\n  <dd>定义</dd>\n</dl>\n') },
   { icon: 'mdi:format-indent-increase', title: '增加缩进', action: () => wrapLine('  ') },
   { icon: 'mdi:format-indent-decrease', title: '减少缩进', action: () => {
     if (!textareaEl) return
@@ -385,6 +419,14 @@ const toolbarActions = [
   }},
   { icon: 'mdi:keyboard-return', title: '换行', action: () => insertAtCursor('  \n') },
   { icon: 'mdi:comment-outline', title: 'HTML注释', action: () => insertMarkdown('<!-- ', ' -->', '注释内容') },
+  { icon: 'mdi:clock-outline', title: '插入时间戳', action: () => {
+    const now = new Date()
+    const ts = now.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+    insertAtCursor(ts)
+  }},
+  { type: 'separator' },
+  { icon: 'mdi:emoticon-outline', title: 'Emoji', action: () => showEmojiPicker = !showEmojiPicker },
+  { icon: 'mdi:omega', title: '特殊字符', action: () => showSpecialChars = !showSpecialChars },
   { icon: 'mdi:find-replace', title: '查找替换 (Ctrl+H)', action: () => { showFindReplace = !showFindReplace; if (showFindReplace) findInContent() } },
 ]
 
@@ -853,6 +895,50 @@ let seoUrl = $derived(`momo-blog.pages.dev/blog/${slug || 'post-slug'}`)
             <button onclick={() => showFindReplace = false} class="p-1 rounded hover:bg-amber-100 dark:hover:bg-amber-800/50 transition-colors">
               <Icon icon="mdi:close" width="14" height="14" class="text-amber-500 dark:text-amber-400" />
             </button>
+          </div>
+        {/if}
+
+        {#if showEmojiPicker}
+          <div class="bg-purple-50/80 dark:bg-purple-900/20 backdrop-blur border border-purple-200/50 dark:border-purple-800/50 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-purple-700 dark:text-purple-300">Emoji</span>
+              <button onclick={() => showEmojiPicker = false} class="text-purple-400 dark:text-purple-500 hover:text-purple-600 dark:hover:text-purple-300">
+                <Icon icon="mdi:close" width="14" height="14" />
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              {#each emojiList as emoji}
+                <button
+                  onclick={() => { insertAtCursor(emoji); showEmojiPicker = false }}
+                  class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800/50 text-lg transition-colors"
+                  title={emoji}
+                >
+                  {emoji}
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        {#if showSpecialChars}
+          <div class="bg-teal-50/80 dark:bg-teal-900/20 backdrop-blur border border-teal-200/50 dark:border-teal-800/50 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-teal-700 dark:text-teal-300">特殊字符 (HTML实体)</span>
+              <button onclick={() => showSpecialChars = false} class="text-teal-400 dark:text-teal-500 hover:text-teal-600 dark:hover:text-teal-300">
+                <Icon icon="mdi:close" width="14" height="14" />
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-1">
+              {#each specialChars as char}
+                <button
+                  onclick={() => { insertAtCursor(char); showSpecialChars = false }}
+                  class="px-2 py-1 rounded-lg hover:bg-teal-100 dark:hover:bg-teal-800/50 text-xs text-teal-700 dark:text-teal-300 font-mono transition-colors border border-teal-200/50 dark:border-teal-700/50"
+                  title={char}
+                >
+                  {char}
+                </button>
+              {/each}
+            </div>
           </div>
         {/if}
 
