@@ -33,7 +33,7 @@ export const siteConfig: SiteConfig = {
 }
 
 export const profileConfig: ProfileConfig = {
-    avatar: "assets/Motues.jpg",
+    avatar: "assets/lihui.jpg",
     name: "栗辉",
     description: "以坚实之根，绽放思想之光",
     indexPage: "https://eckes.de5.net",

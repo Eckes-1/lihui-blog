@@ -208,37 +208,37 @@ Displays as:
 
 ### Linking
 
-Enclose text in square brackets (e.g., [Motues]), then add the URL in parentheses to create a link.
+Enclose text in square brackets (e.g., [LiHui]), then add the URL in parentheses to create a link.
 
 ```markdown
-Welcome to Motues' [Blog](https://motues.top)!
+Welcome to LiHui's [Blog](https://eckes.de5.net)!
 ```
 
 Displays as:  
-Welcome to Motues' [Blog](https://motues.top)!
+Welcome to LiHui's [Blog](https://eckes.de5.net)!
 
 ### Link Titles
 
 Add a title in the brackets after the URL. This will display as a tooltip when users hover over the link.
 
 ```markdown
-Welcome to Motues' [Blog](https://motues.top “Motues' Blog”)!
+Welcome to LiHui's [Blog](https://eckes.de5.net “LiHui Blog”)!
 ```
 
 Displayed as:  
-Welcome to Motues' [Blog](https://motues.top “Motues' Blog”)!
+Welcome to LiHui's [Blog](https://eckes.de5.net “LiHui Blog”)!
 
 ## Images
 
 Start with an exclamation mark (!), then add alternative text in parentheses. Include the image resource path or URL within the parentheses. Optionally, add a title after the URL in the parentheses.The title will be displayed below the image.
 
 ```markdown
-![Motues](./Motues.png "This is my avatar")
+![LiHui](./lihui.png "This is my avatar")
 ```
 
 Displayed as:  
-![Motues](./Motues.png "This is my avatar")
-<!-- <img src="./Motues.png" alt="Motues" title="This is my avatar" width="256" height="256"> -->
+![LiHui](./lihui.png "This is my avatar")
+<!-- <img src="./lihui.png" alt="LiHui" title="This is my avatar" width="256" height="256"> -->
 
 ## Tables
 

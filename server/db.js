@@ -105,10 +105,10 @@ if (seedConfig.count === 0) {
     ['theme.AOS', 'true'],
     ['theme.LQIP', 'true'],
     ['theme.PhotoSwipe', 'true'],
-    ['profile.avatar', 'assets/Motues.jpg'],
-    ['profile.name', 'Motues'],
-    ['profile.description', 'Life is colorful!'],
-    ['profile.indexPage', 'https://www.motues.top'],
+    ['profile.avatar', 'assets/lihui.jpg'],
+    ['profile.name', '栗辉'],
+    ['profile.description', '以坚实之根，绽放思想之光'],
+    ['profile.indexPage', 'https://eckes.de5.net'],
     ['profile.startYear', '2024'],
     ['license.enable', 'true'],
     ['license.name', 'CC BY-NC-SA 4.0'],
@@ -132,7 +132,7 @@ const seedLinks = db.prepare('SELECT COUNT(*) as count FROM friend_links').get()
 if (seedLinks.count === 0) {
   const insertLink = db.prepare('INSERT INTO friend_links (name, avatar, url, description, sort_order) VALUES (?, ?, ?, ?, ?)')
   const links = [
-    ['Motues', 'https://www.motues.top/avatar.jpg', 'https://www.motues.top', 'Like River!', 0],
+    ['栗辉', 'https://eckes.de5.net/assets/lihui.jpg', 'https://eckes.de5.net', '以坚实之根，绽放思想之光', 0],
     ['Astro', 'https://avatars.githubusercontent.com/u/44914786', 'https://astro.build', 'Build fast websites, faster.', 1],
   ]
   const insertMany = db.transaction((items) => {

@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS verify_codes (
   expires_at TEXT NOT NULL
 );
 
-INSERT OR IGNORE INTO site_config (key, value) VALUES ('site.title', 'Momo');
+INSERT OR IGNORE INTO site_config (key, value) VALUES ('site.title', 'LiHui');
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('site.subTitle', 'Blog');
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('site.favicon', '/favicon/favicon.ico');
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('site.pageSize', '6');
@@ -106,10 +106,10 @@ INSERT OR IGNORE INTO site_config (key, value) VALUES ('comments.backendUrl', ''
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('theme.AOS', 'true');
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('theme.LQIP', 'true');
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('theme.PhotoSwipe', 'true');
-INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.avatar', 'assets/Motues.jpg');
-INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.name', 'Motues');
-INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.description', 'Life is colorful!');
-INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.indexPage', 'https://www.motues.top');
+INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.avatar', 'assets/lihui.jpg');
+INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.name', '栗辉');
+INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.description', '以坚实之根，绽放思想之光');
+INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.indexPage', 'https://eckes.de5.net');
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('profile.startYear', '2024');
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('license.enable', 'true');
 INSERT OR IGNORE INTO site_config (key, value) VALUES ('license.name', 'CC BY-NC-SA 4.0');

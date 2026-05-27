@@ -54,9 +54,9 @@ export async function getDynamicProfileConfig(db?: any): Promise<ProfileConfig> 
   await refreshCache(db);
   const p = cachedProfile;
   return {
-    avatar: p?.avatar || 'assets/Motues.jpg',
-    name: p?.name || 'Motues',
-    description: p?.description || 'Life is colorful!',
+    avatar: p?.avatar || 'assets/lihui.jpg',
+    name: p?.name || '栗辉',
+    description: p?.description || '以坚实之根，绽放思想之光',
     indexPage: p?.indexPage || '',
     startYear: parseInt(p?.startYear) || 2024,
   };

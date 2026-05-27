@@ -16,9 +16,9 @@ const translation: Translation = {
             friends: "Friends",
         },
         subTitle: {
-            home: "Life is colorful!",
+            home: "With solid roots, ideas blossom into light",
             archive: "Total of {count} articles",
-            about: "A minimalist blog template",
+            about: "LiHui's Personal Blog",
             friends: "Interesting Souls",
         }
     },

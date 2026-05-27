@@ -209,37 +209,37 @@ int main() {
 
 ### 链接
 
-将文本括在方括号（例如[Motues]）中，然后在后面的括号加入URL表示链接。
+将文本括在方括号（例如[LiHui]）中，然后在后面的括号加入URL表示链接。
 
 ```markdown
-欢迎访问Motues的[Blog](https://motues.top)！
+欢迎访问栗辉的[Blog](https://eckes.de5.net)！
 ```
 
 显示如下:  
-欢迎访问Motues的[Blog](https://motues.top)！
+欢迎访问栗辉的[Blog](https://eckes.de5.net)！
 
 ### 链接标题
 
 在URL后面的括号中添加标题，当用户将鼠标悬停在链接上时，这将显示提示。
 
 ```markdown
-欢迎访问Motues的[Blog](https://motues.top "Motues's Blog")！
+欢迎访问栗辉的[Blog](https://eckes.de5.net "LiHui Blog")！
 ```
 
 显示如下:  
-欢迎访问Motues的[Blog](https://motues.top "Motues's Blog")！
+欢迎访问栗辉的[Blog](https://eckes.de5.net "LiHui Blog")！
 
 ## 图片
 
 先感叹号（!），然后在括号中添加替代文本，并在括号中添加图像资源的路径或URL，也可以选择在括号中的URL之后添加标题，标题会显示在图片下方。
 
 ```markdown
-![Motues](./Motues.png "这是我的头像")
+![LiHui](./lihui.png "这是我的头像")
 ```
 
 显示如下:  
-![Motues](./Motues.png "这是我的头像")
-<!-- <img src="./Motues.png" alt="Motues" title="这是我的头像" width="256" height="256"> -->
+![LiHui](./lihui.png "这是我的头像")
+<!-- <img src="./lihui.png" alt="LiHui" title="这是我的头像" width="256" height="256"> -->
 
 ## 表格
 

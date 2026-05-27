@@ -16,9 +16,9 @@ const translation: Translation = {
             friends: "友链",
         },
         subTitle: {
-            home: "生活多彩！",
+            home: "以坚实之根，绽放思想之光",
             archive: "共 {count} 篇文章",
-            about: "一个极简的Blog模板",
+            about: "栗辉的个人博客",
             friends: "有趣的灵魂",
         }
     },
