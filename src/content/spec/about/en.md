@@ -1,5 +1,7 @@
 
-Momo originates from Xiaohongshu's 📕, serving as every new user's initial nickname, symbolizing a fresh start. The blog's design philosophy stems from this concept, beginning with simplicity to strike a balance between complex functionality and minimalist aesthetics.
+LiHui Blog — "Li" signifies taking firm root, "Hui" signifies radiating brilliance. With solid roots, ideas blossom into light.
+
+This is my personal blog, documenting tech explorations, life reflections, and fragments of thought. Each post is a glimmer of light born from deep roots and flourishing leaves.
 
 ## ✨ Features
 
@@ -8,20 +10,9 @@ Momo originates from Xiaohongshu's 📕, serving as every new user's initial nic
 * **Article Search**: Implements localized search using [pagefind](https://pagefind.app/)
 * **Internationalization (i18n)**: Supports multilingual switching, currently available in Simplified Chinese and English
 * **Mobile Optimization**: Components optimized for mobile devices, delivering the same experience as desktop browsers
-* **Commenting System**: Supports local deployment and Cloudflare deployment. Details in [Backend](https://github.com/Motues/Momo-Backend)
+* **Commenting System**: Supports local deployment and Cloudflare deployment
 * **Extensive Markdown syntax**: Supports Katex, Typst, and Alert components, GitHub cards, custom syntax, and more
 * Additional Core Features: Post categorization, directory, RSS subscription, text statistics, reading time
-
-
-## 🚀 Quick Start
-
-1. Clone this project
-    ```bash
-    git clone https://github.com/Motues/Momo.git
-    cd Momo
-    ```
-2. Run `pnpm install` to install dependencies (use `npm install -g pnpm` to install `pnpm`)
-3. Run `pnpm dev` to start the development server
 
 ## 🔧 Configuration
 
@@ -30,7 +21,6 @@ Refer to the [Configuration Guide](/en/blog/intro/config) and read the correspon
 ## 📚 Updates
 
 Refer to the [Update Guide](/en/blog/intro/release) for instructions on updating the project.
-
 
 ## 📚 References
 

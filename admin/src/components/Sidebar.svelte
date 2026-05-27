@@ -55,9 +55,9 @@ function handleNavClick() {
   <div class="flex items-center justify-between h-16 px-4">
     <span class="text-xl font-bold tracking-wider">
       {#if collapsed}
-        <span class="text-gray-900 dark:text-gray-100">M</span>
+        <span class="text-gray-900 dark:text-gray-100">L</span>
       {:else}
-        <span class="text-gray-900 dark:text-gray-100">Momo</span>
+        <span class="text-gray-900 dark:text-gray-100">LiHui</span>
         <span class="text-gray-400 dark:text-gray-500 ml-1 text-sm font-normal">管理后台</span>
       {/if}
     </span>

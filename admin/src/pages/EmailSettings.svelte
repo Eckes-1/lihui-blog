@@ -351,7 +351,7 @@ function formatTime(t) {
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">发件人名称</label>
               <div class="relative">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"><Icon icon="mdi:account-outline" width="16" height="16" /></span>
-                <input type="text" bind:value={emailSettings.fromName} placeholder="如：Momo Blog"
+                <input type="text" bind:value={emailSettings.fromName} placeholder="如：LiHui Blog"
                   class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-sm focus:ring-2 focus:ring-blue-300/50 dark:focus:ring-blue-500/50 focus:border-transparent outline-none" />
               </div>
             </div>
@@ -413,7 +413,7 @@ function formatTime(t) {
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">发件人名称</label>
               <div class="relative">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"><Icon icon="mdi:account-outline" width="16" height="16" /></span>
-                <input type="text" bind:value={emailSettings.fromName} placeholder="如：Momo Blog"
+                <input type="text" bind:value={emailSettings.fromName} placeholder="如：LiHui Blog"
                   class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-sm focus:ring-2 focus:ring-purple-300/50 dark:focus:ring-purple-500/50 focus:border-transparent outline-none" />
               </div>
             </div>
@@ -595,7 +595,7 @@ function formatTime(t) {
           <p class="font-medium text-gray-700 dark:text-gray-300">如何获取 Turnstile 密钥：</p>
           <p>1. 登录 <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" class="text-blue-600 dark:text-blue-400 underline">Cloudflare Dashboard</a> → 左侧菜单选择 Turnstile</p>
           <p>2. 点击"Add site"添加站点</p>
-          <p>3. 填写站点名称（如：Momo Blog），域名填写 <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">momo-blog.pages.dev</code></p>
+          <p>3. 填写站点名称（如：LiHui Blog），域名填写 <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">eckes.de5.net</code></p>
           <p>4. Widget Mode 选择 <strong>Managed</strong></p>
           <p>5. 创建完成后复制 Site Key 和 Secret Key 填入上方</p>
         </div>

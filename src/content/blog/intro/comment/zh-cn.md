@@ -8,13 +8,13 @@ draft: false
 slugId: momo/intro/comment
 ---
 
-Momo 支持添加评论功能，并提供两种部署方式，支持零服务器部署。详情访问仓库[Momo-backend](https://github.com/Motues/Momo-Backend)。
+LiHui Blog 支持添加评论功能，并提供两种部署方式，支持零服务器部署。详情访问仓库[momo-blog](https://github.com/Eckes-1/momo-blog)。
 
-::github{repo="Motues/Momo-Backend"}
+::github{repo="Eckes-1/momo-blog"}
 
 ## 配置
 
-如果需要启用评论功能，需要先部署后端评论系统，具体参考 Momo-backend 仓库。
+如果需要启用评论功能，需要先部署后端评论系统，具体参考 momo-blog 仓库。
 
 部署完成后，在 `src/config.ts` 文件中，将 `comments.enable` 设置为 `true`，并填写 `comments.backendUrl` 为后端的URL，即可开启评论功能。
 
@@ -24,7 +24,7 @@ Momo 支持添加评论功能，并提供两种部署方式，支持零服务器
 
 ## 自定义前端
 
-如果需要在其他项目里面使用评论功能可以直接通过 CDN 引入，使用方法如下，具体可以参考仓库[Momo-backend](https://github.com/Motues/Momo-Backend)。
+如果需要在其他项目里面使用评论功能可以直接通过 CDN 引入，使用方法如下，具体可以参考仓库[momo-blog](https://github.com/Eckes-1/momo-blog)。
 
 ```html
 <div id="momo-comment"></div>

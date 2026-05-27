@@ -19,7 +19,7 @@ try {
   allPostsData = await getAllPosts(db);
 } catch (e) {
   console.error('[ArchivesPage] Failed to get data:', e);
-  siteConfig = { title: 'Momo' };
+  siteConfig = { title: 'LiHui' };
   allPostsData = { posts: [] };
 }
 const allPosts = (allPostsData.posts || []).map((post: any) => ({

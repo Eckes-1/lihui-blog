@@ -400,7 +400,7 @@ export function registerAuthRoutes(app) {
         return c.json({ error: '请先配置 Resend API Key 和发件邮箱' }, 400)
       }
       const siteTitleRow = await db.prepare("SELECT value FROM site_config WHERE key = 'site.title'").bind().first()
-      const title = siteTitleRow?.value || 'Momo Blog'
+      const title = siteTitleRow?.value || 'LiHui Blog'
       const html = `<div style="max-width:400px;margin:0 auto;padding:20px;font-family:sans-serif;"><div style="background:#f9f9f9;border-radius:12px;padding:24px;text-align:center;"><h2 style="margin:0 0 16px;color:#333;">${title}</h2><p style="color:#666;margin:0 0 20px;">您的登录验证码为：</p><div style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#111;background:#fff;border-radius:8px;padding:12px;display:inline-block;">${code}</div><p style="color:#999;font-size:12px;margin:16px 0 0;">验证码5分钟内有效，请勿泄露</p></div></div>`
       const resp = await fetch('https://api.resend.com/email', {
         method: 'POST',

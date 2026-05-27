@@ -10,7 +10,7 @@ const translation: Translation = {
     },
     cover: {
         title: {
-            home: "欢迎来到Momo的博客",
+            home: "欢迎来到栗辉的博客",
             archive: "文章归档",
             about: "关于",
             friends: "友链",

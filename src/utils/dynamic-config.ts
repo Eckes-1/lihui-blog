@@ -31,7 +31,7 @@ export async function getDynamicSiteConfig(db?: any): Promise<SiteConfig> {
   await refreshCache(db);
   const c = cachedConfig;
   return {
-    title: c?.site?.title || 'Momo',
+    title: c?.site?.title || 'LiHui',
     subTitle: c?.site?.subTitle || 'Blog',
     favicon: c?.site?.favicon || '/favicon/favicon.ico',
     pageSize: parseInt(c?.site?.pageSize) || 6,

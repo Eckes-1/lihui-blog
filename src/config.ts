@@ -7,7 +7,7 @@ import type {
 import type { FriendLink } from "./types/friend"
 
 export const siteConfig: SiteConfig = {
-    title: "Momo",
+    title: "LiHui",
     subTitle: "Blog",
 
     favicon: "/favicon/favicon.ico", // Path of the favicon, relative to the /public directory
@@ -22,7 +22,7 @@ export const siteConfig: SiteConfig = {
     },
     comments: {
         enable: true, // Whether to enable comments
-        platform: "default", // Comment platform, set "default" to use Momo-backend, also supports "twikoo"
+        platform: "default",
         backendUrl: ""
     },
     theme: {
@@ -33,10 +33,10 @@ export const siteConfig: SiteConfig = {
 }
 
 export const profileConfig: ProfileConfig = {
-    avatar: "assets/Motues.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-    name: "Motues",
-    description: "Life is colorful!",
-    indexPage: "https://www.motues.top",
+    avatar: "assets/Motues.jpg",
+    name: "栗辉",
+    description: "以坚实之根，绽放思想之光",
+    indexPage: "https://eckes.de5.net",
     startYear: 2024,
 }
 
@@ -48,16 +48,9 @@ export const licenseConfig: LicenseConfig = {
 
 export const friendLinkConfig: FriendLink[] = [
     {
-        name: 'Motues',
-        avatar: 'https://www.motues.top/avatar.jpg',
-        url: 'https://www.motues.top',
-        description: 'Like River!'
-    },
-    {
         name: 'Astro',
         avatar: 'https://avatars.githubusercontent.com/u/44914786',
         url: 'https://astro.build',
         description: 'Build fast websites, faster.'
     }
-    // Add more friend links here
 ]

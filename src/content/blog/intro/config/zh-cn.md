@@ -1,5 +1,5 @@
 ---
-title: Momo 配置指南
+title: LiHui Blog 配置指南
 pubDate: 2025-09-28
 description: 网站配置
 category: 指南
@@ -44,7 +44,7 @@ slugId: momo/intro/config
     * `PohotSwipe`: 是否启用图片灯箱模式
 
 :::tip
-后端项目参考[Momo-backend](https://github.com/Motues/Momo-Backend)进行部署，一定需要按照要求进行配置，尤其是跨域的域名认证
+后端项目参考[momo-blog](https://github.com/Eckes-1/momo-blog)进行部署，一定需要按照要求进行配置，尤其是跨域的域名认证
 :::
 
 #### `profileConfig`

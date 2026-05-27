@@ -8,13 +8,13 @@ draft: false
 slugId: momo/intro/comment
 ---
 
-Momo supports adding comment functionality and offers two deployment methods, including serverless deployment. For details, visit the repository [Momo-backend](https://github.com/Motues/Momo-Backend).
+LiHui Blog supports adding comment functionality and offers two deployment methods, including serverless deployment. For details, visit the repository [momo-blog](https://github.com/Eckes-1/momo-blog).
 
-::github{repo="Motues/Momo-Backend"}
+::github{repo="Eckes-1/momo-blog"}
 
 ## Configuration
 
-To enable comments, first deploy the backend comment system as detailed in the Momo-backend repository.
+To enable comments, first deploy the backend comment system as detailed in the momo-blog repository.
 
 After deployment, set `comments.enable` to `true` in `src/config.ts` and specify `comments.backendUrl` with the backend URL to activate comments.
 
@@ -24,7 +24,7 @@ The comment component is written in Svelte. Similar to most comment systems, use
 
 ## Custom Frontend
 
-If you need to use the comment feature in other projects, you can directly import it via CDN. The usage method is as follows. For details, please refer to the repository [Momo-backend](https://github.com/Motues/Momo-Backend).
+If you need to use the comment feature in other projects, you can directly import it via CDN. The usage method is as follows. For details, please refer to the repository [momo-blog](https://github.com/Eckes-1/momo-blog).
 
 ```html
 <div id="momo-comment"></div>

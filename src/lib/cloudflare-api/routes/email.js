@@ -3,7 +3,7 @@ async function sendViaResend(to, subject, html, apiKey, fromEmail, fromName) {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: `${fromName || 'Momo Blog'} <${fromEmail}>`,
+      from: `${fromName || 'LiHui Blog'} <${fromEmail}>`,
       to: [to],
       subject,
       html
@@ -28,7 +28,7 @@ async function sendViaSmtp(config, to, subject, html) {
     username: config.user,
     password: config.pass,
     from: config.user,
-    fromName: config.fromName || 'Momo Blog',
+    fromName: config.fromName || 'LiHui Blog',
     to,
     subject,
     html
@@ -57,7 +57,7 @@ async function getEmailConfig(db) {
 
 async function sendEmail(env, db, config, to, subject, html) {
   const mode = config.emailMode || 'smtp'
-  const fromName = config.fromName || 'Momo Blog'
+  const fromName = config.fromName || 'LiHui Blog'
 
   if (mode === 'smtp') {
     if (!config.user || !config.pass || !config.smtpHost) {
@@ -139,7 +139,7 @@ export function registerEmailRoutes(app) {
       const siteTitleRow = await db.prepare(
         "SELECT value FROM site_config WHERE key = 'site.title'"
       ).first()
-      const title = siteTitleRow?.value || 'Momo Blog'
+      const title = siteTitleRow?.value || 'LiHui Blog'
 
       const html = `
       <div style="max-width:400px;margin:0 auto;padding:20px;font-family:sans-serif;">
@@ -245,7 +245,7 @@ export function registerEmailRoutes(app) {
       if (!targetEmail) return c.json({ success: false, error: '请先配置收件邮箱' }, 400)
 
       try {
-        await sendEmail(c.env, db, config, targetEmail, 'Momo Blog 邮件测试',
+        await sendEmail(c.env, db, config, targetEmail, 'LiHui Blog 邮件测试',
           '<p>这是一封测试邮件，如果您收到了，说明邮件配置成功！</p>')
         return c.json({ success: true, message: '测试邮件已发送，请查收' })
       } catch (err) {
@@ -268,10 +268,10 @@ export function registerEmailRoutes(app) {
       if (!password) return c.json({ success: false, error: '请填写授权码' }, 400)
 
       const targetEmail = to || username
-      const config = { smtpHost, smtpPort: smtpPort || '465', user: username, pass: password, fromName: fromName || 'Momo Blog' }
+      const config = { smtpHost, smtpPort: smtpPort || '465', user: username, pass: password, fromName: fromName || 'LiHui Blog' }
 
       try {
-        await sendViaSmtp(config, targetEmail, 'Momo Blog SMTP 测试',
+        await sendViaSmtp(config, targetEmail, 'LiHui Blog SMTP 测试',
           '<p>这是一封通过 SMTP 发送的测试邮件，如果您收到了，说明 SMTP 配置成功！</p>')
         await logEmail(db, 'test', 'smtp', targetEmail, 'SMTP测试', 'success')
         return c.json({ success: true, message: 'SMTP 测试邮件已发送，请查收' })
@@ -294,13 +294,13 @@ export function registerEmailRoutes(app) {
       if (!apiKey) return c.json({ success: false, error: '请填写 Resend API Key' }, 400)
       if (!fromEmail) return c.json({ success: false, error: '请填写发件邮箱' }, 400)
 
-      const fromName = 'Momo Blog'
+      const fromName = 'LiHui Blog'
       const targetEmail = to || fromEmail
 
       try {
         await sendViaResend(
           targetEmail,
-          'Momo Blog 邮件测试 (Resend)',
+          'LiHui Blog 邮件测试 (Resend)',
           '<p>这是一封通过 Resend API 发送的测试邮件，如果您收到了，说明邮件配置成功！</p>',
           apiKey,
           fromEmail,

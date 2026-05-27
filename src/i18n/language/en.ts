@@ -10,7 +10,7 @@ const translation: Translation = {
     },
     cover: {
         title: {
-            home: "Welcome to Momo's Blog",
+            home: "Welcome to LiHui Blog",
             archive: "Archive",
             about: "About",
             friends: "Friends",

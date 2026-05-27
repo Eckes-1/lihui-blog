@@ -1,5 +1,5 @@
 ---
-title: Momo Configuration Guide
+title: LiHui Blog Configuration Guide
 pubDate: 2025-09-28
 description: Website Configuration
 category: Instruction
@@ -44,7 +44,7 @@ The primary configuration files for the website are `astro.config.mjs` and `src/
     * `PohotSwipe`: Enable PhotoSwipe
 
 :::tip
-For the backend project, refer to [Momo-backend](https://github.com/Motues/Momo-Backend). Ensure all configurations are completed as specified, particularly for cross-domain domains.
+For the backend project, refer to [momo-blog](https://github.com/Eckes-1/momo-blog). Ensure all configurations are completed as specified, particularly for cross-domain domains.
 :::
 
 #### `profileConfig`
