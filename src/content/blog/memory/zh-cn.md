@@ -5,7 +5,7 @@ description: 纪念逝去的......
 category: 随笔
 image: ""
 draft: false
-slugId: momo/memory
+slugId: lihui/memory
 ---
 
 # 凡是过往，皆为序章

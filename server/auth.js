@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-export const JWT_SECRET = process.env.JWT_SECRET || 'momo-blog-secret-key-2026'
+export const JWT_SECRET = process.env.JWT_SECRET || 'lihui-blog-secret-key-2026'
 
 export function authMiddleware(req, res, next) {
   if (req.method === 'GET') {

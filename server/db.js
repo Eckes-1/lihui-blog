@@ -92,7 +92,7 @@ const seedConfig = db.prepare('SELECT COUNT(*) as count FROM site_config').get()
 if (seedConfig.count === 0) {
   const insertConfig = db.prepare('INSERT OR IGNORE INTO site_config (key, value) VALUES (?, ?)')
   const configs = [
-    ['site.title', 'Momo'],
+    ['site.title', 'LiHui'],
     ['site.subTitle', 'Blog'],
     ['site.favicon', '/favicon/favicon.ico'],
     ['site.pageSize', '6'],
@@ -101,7 +101,7 @@ if (seedConfig.count === 0) {
     ['blogNavi.enable', 'true'],
     ['comments.enable', 'true'],
     ['comments.platform', 'default'],
-    ['comments.backendUrl', 'https://api-momo.motues.top'],
+    ['comments.backendUrl', 'https://eckes.de5.net/api'],
     ['theme.AOS', 'true'],
     ['theme.LQIP', 'true'],
     ['theme.PhotoSwipe', 'true'],

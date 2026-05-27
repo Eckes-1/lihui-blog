@@ -5,7 +5,7 @@ description: Article Functionality Testing
 category: Test
 image: ""
 draft: false
-slugId: momo/test/video
+slugId: lihui/test/video
 ---
 
 ## Video Cards

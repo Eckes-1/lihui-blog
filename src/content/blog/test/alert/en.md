@@ -5,7 +5,7 @@ description: Article functionality testing
 category: Test
 image: ""
 draft: true
-slugId: momo/test/alert
+slugId: lihui/test/alert
 ---
 
 ## Alert Component Testing

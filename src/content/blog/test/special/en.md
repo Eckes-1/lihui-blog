@@ -5,7 +5,7 @@ description: Article functionality test
 category: Test
 image: ""
 draft: false
-slugId: momo/test/special
+slugId: lihui/test/special
 ---
 
 ## Tets Quote

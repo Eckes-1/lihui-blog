@@ -5,7 +5,7 @@ description: 文章功能测试
 category: 测试
 image: ""
 draft: true
-slugId: momo/test/toc
+slugId: lihui/test/toc
 ---
 
 用来测试目录功能

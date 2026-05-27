@@ -5,7 +5,7 @@ description: 文章功能测试
 category: 测试
 image: ""
 draft: false
-slugId: momo/test/video
+slugId: lihui/test/video
 ---
 
 ## 视频卡片

@@ -5,7 +5,7 @@ description: Article Functionality Testing
 category: Test
 image: ""
 draft: true
-slugId: momo/test/toc
+slugId: lihui/test/toc
 ---
 
 Used to test directory functionality

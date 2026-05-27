@@ -5,7 +5,7 @@ description: Article functionality testing
 category: Test
 image: ""
 draft: true
-slugId: momo/test/draft
+slugId: lihui/test/draft
 ---
 
 ## Draft

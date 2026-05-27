@@ -711,7 +711,7 @@ onDestroy(() => {
 
 let seoTitle = $derived(title || '文章标题')
 let seoDesc = $derived(description || content.substring(0, 160).replace(/[#*`\n]/g, ' ').trim() || '文章描述...')
-let seoUrl = $derived(`momo-blog.pages.dev/blog/${slug || 'post-slug'}`)
+let seoUrl = $derived(`eckes.de5.net/blog/${slug || 'post-slug'}`)
 </script>
 
 <svelte:window onkeydown={handleKeydown} />

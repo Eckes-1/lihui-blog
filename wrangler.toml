@@ -1,4 +1,4 @@
-name = "momo-blog"
+name = "lihui-blog"
 compatibility_date = "2024-12-01"
 compatibility_flags = ["nodejs_compat"]
 
@@ -11,4 +11,4 @@ database_id = "79ec6be0-acb9-40a9-b94f-f2b98ed0cfb7"
 name = "EMAIL"
 
 [vars]
-JWT_SECRET = "m0mO_bL0g_$3cr3t_K3y!2026xZ9qW7pR4vN8jF2hL6tY0dA5cB1eG3kM9"
+JWT_SECRET = "l1H2u1_Bl0g_$3cr3t_K3y!2026xZ9qW7pR4vN8jF2hL6tY0dA5cB1eG3kM9"

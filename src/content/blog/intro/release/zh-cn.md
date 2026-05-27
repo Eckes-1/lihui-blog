@@ -5,7 +5,7 @@ description: 网站配置
 category: 指南
 image: "./images/banner.png"
 draft: false
-slugId: momo/intro/release
+slugId: lihui/intro/release
 pinTop: 1
 ---
 

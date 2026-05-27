@@ -5,7 +5,7 @@ description: Website Configuration
 category: Instruction
 image: ""
 draft: false
-slugId: momo/intro/publish
+slugId: lihui/intro/publish
 ---
 
 ## Creating Article Files

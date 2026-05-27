@@ -179,7 +179,7 @@ router.post('/send-code', async (req, res) => {
 
     const code = generateCode(email)
     const siteTitle = db.prepare("SELECT value FROM site_config WHERE key = 'site.title'").get()
-    const title = siteTitle?.value || 'Momo Blog'
+    const title = siteTitle?.value || 'LiHui Blog'
 
     await withTimeout(sendMail(email, `${title} - 登录验证码`, `
       <div style="max-width:400px;margin:0 auto;padding:20px;font-family:sans-serif;">

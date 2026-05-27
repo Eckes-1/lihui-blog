@@ -2,7 +2,7 @@
 
 This project is currently under active maintenance. To update, follow these steps:
 
-First, verify the version number in `package.json` or review the changelog here or at [Release](https://github.com/Motues/Momo/releases).
+First, verify the version number in `package.json` or review the changelog here or at [Release](https://github.com/Eckes-1/momo-blog/releases).
 
 The project version number is only incremented when the configuration file structure undergoes structural changes. Project configuration files refer to those related to website layout and content, including `astro.config.mjs`, `src/config.ts`, `src/content.config.ts`, and files within the `src/i18n/` folder.
 
@@ -79,8 +79,6 @@ Below are general modification suggestions.
 * Changed the style of comment avatars to circular
 * Adjusted the margins of some components
 * This update modifies the configuration file `src/i18n/` by adding the `themeInfo` field; all other fields remain unchanged. To apply the changes, simply add the new field
-
-Translated with DeepL.com (free version)
 
 ### v26.3.11
 

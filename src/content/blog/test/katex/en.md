@@ -5,7 +5,7 @@ description: Article functionality test
 category: Test
 image: ""
 draft: false
-slugId: momo/test/katex
+slugId: lihui/test/katex
 ---
 
 ## KaTeX Math Formula Testing

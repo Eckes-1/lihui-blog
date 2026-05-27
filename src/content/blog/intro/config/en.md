@@ -5,7 +5,7 @@ description: Website Configuration
 category: Instruction
 image: ""
 draft: false
-slugId: momo/intro/config
+slugId: lihui/intro/config
 ---
 
 ## Website Information Configuration

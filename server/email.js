@@ -71,7 +71,7 @@ async function sendViaSmtp(to, subject, html, emailConfig) {
   const transporter = createTransporter(emailConfig)
   if (!transporter) throw new Error('邮件服务未配置')
 
-  const fromName = emailConfig.fromName || 'Momo Blog'
+  const fromName = emailConfig.fromName || 'LiHui Blog'
   const from = `"${fromName}" <${emailConfig.user}>`
 
   try {
@@ -86,7 +86,7 @@ async function sendViaResend(to, subject, html, emailConfig) {
   const apiKey = emailConfig.resendKey
   if (!apiKey) throw new Error('Resend API Key 未配置')
 
-  const fromName = emailConfig.fromName || 'Momo Blog'
+  const fromName = emailConfig.fromName || 'LiHui Blog'
   const fromEmail = emailConfig.resendFrom || emailConfig.user
 
   const resp = await axios.post('https://api.resend.com/emails', {
@@ -159,9 +159,9 @@ export async function testEmailConfig(user, pass, to) {
     await transporter.verify()
     if (to) {
       await transporter.sendMail({
-        from: `"Momo Blog" <${user}>`,
+        from: `"LiHui Blog" <${user}>`,
         to,
-        subject: 'Momo Blog 邮件测试',
+        subject: 'LiHui Blog 邮件测试',
         html: '<p>这是一封测试邮件，如果您收到了，说明邮件配置成功！</p>',
       })
     }
@@ -178,9 +178,9 @@ export async function testEmailConfig(user, pass, to) {
 export async function testResendConfig(apiKey, fromEmail, to) {
   try {
     const resp = await axios.post('https://api.resend.com/emails', {
-      from: `Momo Blog <${fromEmail}>`,
+      from: `LiHui Blog <${fromEmail}>`,
       to: [to || fromEmail],
-      subject: 'Momo Blog 邮件测试 (Resend)',
+      subject: 'LiHui Blog 邮件测试 (Resend)',
       html: '<p>这是一封通过 Resend API 发送的测试邮件，如果您收到了，说明邮件配置成功！</p>',
     }, {
       headers: {

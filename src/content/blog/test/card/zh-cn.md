@@ -5,7 +5,7 @@ description: 文章功能测试
 category: 测试
 image: ""
 draft: true
-slugId: momo/test/card
+slugId: lihui/test/card
 ---
 
 ## 音乐卡片

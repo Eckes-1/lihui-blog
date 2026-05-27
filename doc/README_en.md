@@ -1,22 +1,22 @@
-# Momo
+# LiHui Blog
 
 <div align="center">
     <img src="./images/index-light-en.jpg">
-    <p>A nimimal blog template build with <a href="https://astro.build/">Astro</a></p>
+    <p>With solid roots, ideas blossom into light — A personal blog built with <a href="https://astro.build/">Astro</a></p>
     <small><a href="../README.md">简体中文</a></small> <small><ins>English</ins></small>
 </div>
 
 
 ## ✨ Features
 
-Momo originates from Xiaohongshu📕, serving as the default nickname for every new user—symbolizing a fresh start. This philosophy guides our blog design, striking a balance between complex functionality and minimalist aesthetics.
+LiHui Blog — "Li" signifies taking firm root, "Hui" signifies radiating brilliance. With solid roots, ideas blossom into light.
 
 * **Minimalist Design**: Clean page layout with black and white as primary colors, accented by blue
 * **Dark Mode**: Supports manual switching or automatic system adaptation
 * **Article Search**: Implements localized search using [pagefind](https://pagefind.app/)
 * **Internationalization (i18n)**: Supports multilingual switching, currently available in Simplified Chinese and English
 * **Mobile Adaptation**: Components optimized for mobile devices, delivering the same experience as desktop browsers
-* **Commenting**: Supports local deployment and Cloudflare deployment. See [Backend](https://github.com/Motues/Momo-Backend) for details
+* **Commenting**: Supports local deployment and Cloudflare deployment
 * **Extensive Markdown syntax**: Supports Katex, Typst, and Alert components, GitHub cards, custom syntax, and more
 * Other core features: Article categories, directory, RSS subscription, text statistics, reading time
 
@@ -24,26 +24,19 @@ Momo originates from Xiaohongshu📕, serving as the default nickname for every 
 
 1. Clone this project
     ```bash
-    git clone https://github.com/Motues/Momo.git
-    cd Momo
+    git clone https://github.com/Eckes-1/momo-blog.git
+    cd momo-blog
     ```
 2. Run `pnpm install` to install dependencies (use `npm install -g pnpm` to install `pnpm`)
 3. Run `pnpm dev` to start the development server
 
 ## 🔧 Configuration
 
-Refer to the [Configuration Guide](./config_en.md). For detailed information, visit [Momo](https://momo.motues.top/en/intro/config) and read the corresponding articles.
+Refer to the [Configuration Guide](./config_en.md). For detailed information, visit [LiHui Blog](https://eckes.de5.net/en/intro/config) and read the corresponding articles.
 
 ## 📚 Updating
 
-Refer to the [Update Guide](./release_en.md) for instructions on updating your project. Visit [Momo](https://momo.motues.top/en/intro/release) for detailed information.
-
-## 🍃 Branch
-
-Below are some branches that are maintained on an irregular basis; we cannot guarantee that they will remain in sync with the `main` branch.
-
-* `memos`: Implements the Memos card feature
-* `v6`: Upgrades dependencies to Astro v6
+Refer to the [Update Guide](./release_en.md) for instructions on updating your project. Visit [LiHui Blog](https://eckes.de5.net/en/intro/release) for detailed information.
 
 ## ⚡ Commands
 

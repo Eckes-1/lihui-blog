@@ -24,7 +24,7 @@ import svelte from "@astrojs/svelte";
 import { siteConfig } from './src/config';
 
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://momo.motues.top',
+  site: process.env.SITE_URL || 'https://eckes.de5.net',
   output: 'server',
   adapter: cloudflare({
     platformProxy: {

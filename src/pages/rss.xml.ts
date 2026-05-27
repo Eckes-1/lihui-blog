@@ -13,7 +13,7 @@ export async function GET(context: APIContext) {
     return rss({
         title: `${siteConfig.title} - ${siteConfig.subTitle}`,
         description: profileConfig.description,
-        site: context.site ?? "https://momo.motues.top",
+        site: context.site ?? "https://eckes.de5.net",
         items: blog.slice(0, 20).map((post: any) => ({
             title: post.title,
             pubDate: new Date(post.pub_date),

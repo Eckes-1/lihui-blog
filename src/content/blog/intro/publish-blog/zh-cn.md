@@ -5,7 +5,7 @@ description: 网站配置
 category: 指南
 image: ""
 draft: false
-slugId: momo/intro/publish
+slugId: lihui/intro/publish
 ---
 
 

@@ -72,7 +72,7 @@ if (IS_DEV) {
   app.get('/admin/{*splat}', (req, res) => {
     res.sendFile(join(adminDist, 'index.html'))
   })
-  console.log('[Momo] 开发模式: 管理面板使用静态文件 (运行 dev:admin 启动 Vite HMR)')
+  console.log('[LiHui] 开发模式: 管理面板使用静态文件 (运行 dev:admin 启动 Vite HMR)')
 } else {
   const adminDist = join(__dirname, '..', 'admin', 'dist')
   app.use('/admin', express.static(adminDist))
@@ -90,7 +90,7 @@ try {
   const astroEntry = await import(join(astroDist, 'server', 'entry.mjs'))
   astroHandler = astroEntry.handler
 } catch (e) {
-  console.warn('[Momo] Astro SSR handler 加载失败，前台页面不可用:', e.message)
+  console.warn('[LiHui] Astro SSR handler 加载失败，前台页面不可用:', e.message)
 }
 
 if (astroHandler) {
@@ -104,7 +104,7 @@ if (astroHandler) {
 }
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[Momo] Blog 服务器已启动: http://localhost:${PORT}`)
-  console.log(`[Momo] API 地址: http://localhost:${PORT}/api/`)
-  console.log(`[Momo] 管理面板: http://localhost:${PORT}/admin/`)
+  console.log(`[LiHui] Blog 服务器已启动: http://localhost:${PORT}`)
+  console.log(`[LiHui] API 地址: http://localhost:${PORT}/api/`)
+  console.log(`[LiHui] 管理面板: http://localhost:${PORT}/admin/`)
 })

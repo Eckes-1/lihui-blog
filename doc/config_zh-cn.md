@@ -1,4 +1,4 @@
-# Momo 配置指南
+# LiHui Blog 配置指南
 
 ## 网站信息配置
 
@@ -25,7 +25,7 @@
     * `enable`: 是否启用目录
     * `depth`: 目录的深度
 * `blogNavi`
-    * `enable`: 是否启用博客底部的页面导航 
+    * `enable`: 是否启用博客底部的页面导航
 * `comments`
     * `enable`: 是否启用评论功能
     * `platform`: 评论平台
@@ -35,7 +35,7 @@
     * `LQIP`: 是否启用LQIP
     * `PohotSwipe`: 是否启用图片灯箱模式
 
-> 后端项目参考[Momo-backend](https://github.com/Motues/Momo-Backend)进行部署，一定需要按照要求进行配置，尤其是跨域的域名认证
+> 后端项目参考[lihui-blog](https://github.com/Eckes-1/momo-blog)进行部署，一定需要按照要求进行配置，尤其是跨域的域名认证
 
 #### `profileConfig`
 

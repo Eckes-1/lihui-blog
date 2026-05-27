@@ -5,7 +5,7 @@ description: Website Configuration
 category: Instruction
 image: "./images/banner.png"
 draft: false
-slugId: momo/intro/release
+slugId: lihui/intro/release
 pinTop: 1
 ---
 

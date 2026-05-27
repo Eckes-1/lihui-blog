@@ -5,7 +5,7 @@ description: 文章功能测试
 category: 测试
 image: ""
 draft: false
-slugId: momo/test/katex
+slugId: lihui/test/katex
 ---
 
 ## KaTeX 数学公式测试

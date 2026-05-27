@@ -129,7 +129,7 @@
   }
 
   const STORAGE_KEY = 'comment_user_info';
-  const STORAGE_KEY_DRAFT = 'momo_comment_draft';
+  const STORAGE_KEY_DRAFT = 'lihui_comment_draft';
   let loaded = false;
 
   function loadUserInfoFromStorage() {
