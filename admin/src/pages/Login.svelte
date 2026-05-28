@@ -273,10 +273,8 @@ function handleKeydown(e) {
   <div class="z-10 w-full max-w-[420px] px-6">
     <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl p-10 rounded-3xl border border-white/50 dark:border-gray-700/50 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
       <div class="flex flex-col items-center mb-8">
-        <div class="flex items-center gap-2">
-          <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-900 dark:bg-gray-100">
-            <span class="text-sm font-bold text-white dark:text-gray-900">M</span>
-          </div>
+        <div class="flex items-center gap-3">
+          <img src="/favicon/favicon-64x64.png" alt="LiHui" class="w-10 h-10 rounded-xl object-cover shadow-sm" />
           <h2 class="text-gray-900 dark:text-gray-100 text-2xl font-bold tracking-tight">欢迎登录管理后台</h2>
         </div>
       </div>
