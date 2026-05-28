@@ -11,6 +11,7 @@ import { registerProfileRoutes } from './routes/profile.js'
 import { registerLinksRoutes } from './routes/links.js'
 import { registerMediaRoutes } from './routes/media.js'
 import { registerDashboardRoutes } from './routes/dashboard.js'
+import { registerMusicRoutes } from './routes/music.js'
 
 const app = new Hono()
 
@@ -47,7 +48,7 @@ app.use('/api/*', async (c, next) => {
   const path = new URL(c.req.url).pathname
   const method = c.req.method
 
-  const publicGetPaths = ['/api/posts', '/api/categories', '/api/links', '/api/site']
+  const publicGetPaths = ['/api/posts', '/api/categories', '/api/links', '/api/site', '/api/music']
   const publicExactGetPaths = ['/api/comments', '/api/site/fingerprint']
   const adminSubPaths = ['/stats', '/batch', '/admin/', '/toggle-pin', '/toggle-draft']
 
@@ -118,5 +119,6 @@ registerProfileRoutes(app)
 registerLinksRoutes(app)
 registerMediaRoutes(app)
 registerDashboardRoutes(app)
+registerMusicRoutes(app)
 
 export default app
