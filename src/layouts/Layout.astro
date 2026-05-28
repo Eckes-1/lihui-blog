@@ -100,12 +100,35 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
           var _snapshot = null;
           var _timer = null;
           var _visible = true;
-          var _lastReload = 0;
+          var _lastSync = 0;
 
           function getSnapshot() {
             return fetch('/api/site/fingerprint?_t=' + Date.now(), { cache: 'no-store' })
               .then(function(r) { return r.ok ? r.json() : null; })
               .catch(function() { return null; });
+          }
+
+          function silentNavigate() {
+            var url = window.location.pathname;
+            if (window.location.search) {
+              url = url.split('?')[0];
+            }
+            if (typeof window.navigate === 'function') {
+              window.navigate(url, { history: 'replace' });
+            } else {
+              fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function(r) { return r.text(); })
+                .then(function(html) {
+                  var parser = new DOMParser();
+                  var doc = parser.parseFromString(html, 'text/html');
+                  var newMain = doc.querySelector('main');
+                  var oldMain = document.querySelector('main');
+                  if (newMain && oldMain) {
+                    oldMain.innerHTML = newMain.innerHTML;
+                  }
+                })
+                .catch(function() {});
+            }
           }
 
           function check() {
@@ -120,25 +143,13 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
               if (current !== _snapshot) {
                 _snapshot = current;
                 var now = Date.now();
-                if (now - _lastReload < 30000) return;
-                _lastReload = now;
+                if (now - _lastSync < 30000) return;
+                _lastSync = now;
                 if (window.location.pathname.indexOf('/blog/') !== -1 ||
                     window.location.pathname === '/' ||
                     window.location.pathname.indexOf('/archives') !== -1 ||
                     window.location.pathname.indexOf('/friends') !== -1) {
-                  if (document.startViewTransition) {
-                    document.startViewTransition(function() {
-                      return fetch(window.location.href.split('?')[0]).then(function() {
-                        window.location.reload();
-                      });
-                    });
-                  } else {
-                    var url = window.location.pathname;
-                    if (window.location.search) {
-                      url = url.split('?')[0];
-                    }
-                    window.location.href = url + '?_fresh=' + Date.now();
-                  }
+                  silentNavigate();
                 }
               }
             });
