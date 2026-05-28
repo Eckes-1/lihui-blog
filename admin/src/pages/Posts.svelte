@@ -28,6 +28,7 @@ let showMoveCategoryModal = $state(false)
 let moveCategoryTarget = $state('')
 let showExportMenu = $state(false)
 let expandedRow = $state(null)
+let _skipNextSSE = false
 
 let stats = $state({ total: 0, published: 0, draft: 0, pinned: 0, today: 0 })
 
@@ -69,6 +70,7 @@ onMount(() => {
   loadCategories()
   loadStats()
   const off = onSSE((data) => {
+    if (_skipNextSSE) { _skipNextSSE = false; return }
     if (data.resources.includes('posts')) {
       loadData(true)
       loadStats()
@@ -81,46 +83,63 @@ onMount(() => {
 
 async function handleDelete(id) {
   try {
-    await posts.delete(id)
+    const target = postList.find(p => (p.id || p._id) === id)
+    _skipNextSSE = true
+    postList = postList.filter(p => (p.id || p._id) !== id)
+    totalPosts = Math.max(0, totalPosts - 1)
+    selectedIds = new Set([...selectedIds].filter(sid => sid !== id))
     addToast('删除成功', 'success')
     deleteTarget = null
-    selectedIds = new Set(selectedIds)
-    selectedIds.delete(id)
-    loadData()
+    await posts.delete(id)
     loadStats()
   } catch (e) {
     addToast(e.message || '删除失败', 'error')
     deleteTarget = null
+    loadData(true)
   }
 }
 
 async function handleToggleDraft(post) {
   try {
-    await posts.toggleDraft(post.id || post._id)
+    const pid = post.id || post._id
+    const newDraft = !post.draft
+    _skipNextSSE = true
+    postList = postList.map(p => (p.id || p._id) === pid ? { ...p, draft: newDraft } : p)
+    stats = { ...stats, published: stats.published + (newDraft ? -1 : 1), draft: stats.draft + (newDraft ? 1 : -1) }
     addToast(post.draft ? '已发布' : '已转为草稿', 'success')
-    loadData()
+    await posts.toggleDraft(pid)
     loadStats()
   } catch (e) {
     addToast(e.message || '操作失败', 'error')
+    loadData(true)
+    loadStats()
   }
 }
 
 async function handleTogglePin(post) {
   try {
-    await posts.togglePin(post.id || post._id)
+    const pid = post.id || post._id
+    const newPin = !post.pin_top
+    _skipNextSSE = true
+    postList = postList.map(p => (p.id || p._id) === pid ? { ...p, pin_top: newPin } : p)
+    stats = { ...stats, pinned: stats.pinned + (newPin ? 1 : -1) }
     addToast(post.pin_top ? '已取消置顶' : '已置顶', 'success')
-    loadData()
+    await posts.togglePin(pid)
     loadStats()
   } catch (e) {
     addToast(e.message || '操作失败', 'error')
+    loadData(true)
+    loadStats()
   }
 }
 
 async function handleClone(post) {
   try {
-    await posts.clone(post.id || post._id)
+    _skipNextSSE = true
+    addToast('正在克隆...', 'info')
+    const res = await posts.clone(post.id || post._id)
     addToast('已克隆文章「' + post.title + '」', 'success')
-    loadData()
+    loadData(true)
     loadStats()
   } catch (e) {
     addToast(e.message || '克隆失败', 'error')
@@ -130,12 +149,14 @@ async function handleClone(post) {
 async function handleBatch(action, extra = {}) {
   if (selectedIds.size === 0) { addToast('请先选择文章', 'warning'); return }
   try {
+    _skipNextSSE = true
+    addToast('正在处理...', 'info')
     const res = await posts.batch([...selectedIds], action, extra)
     addToast(res.message || '操作成功', 'success')
     selectedIds = new Set()
     selectAll = false
     showBatchBar = false
-    loadData()
+    loadData(true)
     loadStats()
   } catch (e) {
     addToast(e.message || '操作失败', 'error')
@@ -145,6 +166,8 @@ async function handleBatch(action, extra = {}) {
 async function handleMoveCategory() {
   if (!moveCategoryTarget && moveCategoryTarget !== '') { addToast('请选择分类', 'warning'); return }
   try {
+    _skipNextSSE = true
+    addToast('正在移动...', 'info')
     await posts.batch([...selectedIds], 'moveCategory', { category: moveCategoryTarget })
     addToast('已移动分类', 'success')
     selectedIds = new Set()
@@ -152,7 +175,7 @@ async function handleMoveCategory() {
     showBatchBar = false
     showMoveCategoryModal = false
     moveCategoryTarget = ''
-    loadData()
+    loadData(true)
   } catch (e) {
     addToast(e.message || '操作失败', 'error')
   }

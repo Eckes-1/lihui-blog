@@ -28,6 +28,7 @@ let showDateFilter = $state(false)
 let viewMode = $state('card')
 let jumpModalComment = $state(null)
 let searchTimer = null
+let _skipNextSSE = false
 
 let expandedReplies = $state(new Set())
 
@@ -79,6 +80,7 @@ onMount(() => {
   loadData()
   loadStats()
   const off = onSSE((data) => {
+    if (_skipNextSSE) { _skipNextSSE = false; return }
     if (data.resources.includes('comments') || data.resources.includes('pendingComments')) {
       loadData(true)
       loadStats()
@@ -118,34 +120,41 @@ function handleExport() {
 
 async function handleUpdateStatus(comment, status) {
   try {
-    await comments.updateStatus(comment.id, status)
+    _skipNextSSE = true
+    commentList = commentList.map(c => c.id === comment.id ? { ...c, status, approved: status === 'approved' ? 1 : 0 } : c)
     addToast(status === 'approved' ? '已通过' : '已拒绝', 'success')
-    loadData()
+    await comments.updateStatus(comment.id, status)
     loadStats()
   } catch (e) {
     addToast(e.message || '操作失败', 'error')
+    loadData(true)
+    loadStats()
   }
 }
 
 async function handleDelete(id) {
   try {
-    await comments.delete(id)
+    _skipNextSSE = true
+    commentList = commentList.filter(c => c.id !== id)
+    selectedIds = new Set([...selectedIds].filter(sid => sid !== id))
     addToast('已移至回收站', 'success')
     deleteTarget = null
-    selectedIds.delete(id)
-    loadData()
+    await comments.delete(id)
     loadStats()
   } catch (e) {
     addToast(e.message || '删除失败', 'error')
     deleteTarget = null
+    loadData(true)
+    loadStats()
   }
 }
 
 async function handleRestore(id) {
   try {
-    await comments.restore(id)
+    _skipNextSSE = true
     addToast('已恢复', 'success')
-    loadData()
+    await comments.restore(id)
+    loadData(true)
     loadStats()
   } catch (e) {
     addToast(e.message || '恢复失败', 'error')
@@ -154,26 +163,30 @@ async function handleRestore(id) {
 
 async function handlePermanentDelete(id) {
   try {
-    await comments.permanentDelete(id)
+    _skipNextSSE = true
+    commentList = commentList.filter(c => c.id !== id)
     addToast('已彻底删除', 'success')
     permanentDeleteTarget = null
-    loadData()
+    await comments.permanentDelete(id)
     loadStats()
   } catch (e) {
     addToast(e.message || '彻底删除失败', 'error')
     permanentDeleteTarget = null
+    loadData(true)
+    loadStats()
   }
 }
 
 async function handleReply(id) {
   if (!replyContent.trim()) { addToast('请输入回复内容', 'error'); return }
   try {
-    await comments.reply(id, replyContent, replyEmail)
+    _skipNextSSE = true
     addToast('回复成功', 'success')
     replyingTo = null
     replyContent = ''
     replyEmail = ''
-    loadData()
+    await comments.reply(id, replyContent, replyEmail)
+    loadData(true)
     loadStats()
   } catch (e) {
     addToast(e.message || '回复失败', 'error')
@@ -183,12 +196,14 @@ async function handleReply(id) {
 async function handleBatch(action) {
   if (selectedIds.size === 0) { addToast('请先选择评论', 'warning'); return }
   try {
+    _skipNextSSE = true
+    addToast('正在处理...', 'info')
     const res = await comments.batch([...selectedIds], action)
     addToast(res.message || '操作成功', 'success')
     selectedIds = new Set()
     selectAll = false
     showBatchBar = false
-    loadData()
+    loadData(true)
     loadStats()
   } catch (e) {
     addToast(e.message || '操作失败', 'error')

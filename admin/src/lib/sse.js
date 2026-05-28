@@ -1,7 +1,7 @@
 import { getToken, setToken, setUser, addToast } from '../stores.svelte.js'
 
 const BASE = '/api'
-const POLL_INTERVAL = 2000
+const POLL_INTERVAL = 15000
 
 let listeners = new Map()
 let listenerId = 0
