@@ -108,11 +108,11 @@ function getThemeIcon() {
       </button>
 
       {#if showThemeMenu}
-        <div class="absolute right-0 top-full mt-2 w-36 bg-white/90 dark:bg-gray-800/90 backdrop-blur-2xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-white/50 dark:border-gray-700/50 py-1.5 z-50">
+        <div class="absolute right-0 top-full mt-2 w-36 bg-white/90 dark:bg-gray-800/90 backdrop-blur-2xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-white/50 dark:border-gray-700/50 py-1.5 z-50 overflow-hidden">
           {#each themeOptions as opt}
             <button
               onclick={() => { setThemeMode(opt.key); showThemeMenu = false }}
-              class="flex items-center gap-2 px-3 py-2 text-sm w-full text-left transition-colors {currentTheme === opt.key ? 'text-gray-900 dark:text-white bg-gray-100/60 dark:bg-gray-700/60' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/40'}"
+              class="flex items-center gap-2 px-3 py-2 text-sm w-full text-left transition-colors rounded-lg {currentTheme === opt.key ? 'text-gray-900 dark:text-white bg-gray-100/60 dark:bg-gray-700/60' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/40'}"
             >
               <Icon icon={opt.icon} width="16" height="16" />
               {opt.label}

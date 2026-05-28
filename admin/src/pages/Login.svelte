@@ -274,8 +274,8 @@ function handleKeydown(e) {
     <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-2xl p-10 rounded-3xl border border-white/50 dark:border-gray-700/50 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
       <div class="flex flex-col items-center mb-8">
         <div class="flex items-center gap-3">
-          <img src="/favicon/favicon-64x64.png" alt="LiHui" class="w-10 h-10 rounded-xl object-cover shadow-sm" />
-          <h2 class="text-gray-900 dark:text-gray-100 text-2xl font-bold tracking-tight">欢迎登录管理后台</h2>
+          <img src="/favicon/favicon-64x64.png?v=3" alt="LiHui" class="w-10 h-10 rounded-xl object-cover shadow-sm shrink-0" />
+          <h2 class="text-gray-900 dark:text-gray-100 text-xl sm:text-2xl font-bold tracking-tight whitespace-nowrap">欢迎登录管理后台</h2>
         </div>
       </div>
 

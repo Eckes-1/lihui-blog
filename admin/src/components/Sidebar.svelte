@@ -55,9 +55,9 @@ function handleNavClick() {
   <div class="flex items-center justify-between h-16 px-4">
     <span class="text-xl font-bold tracking-wider flex items-center gap-2">
       {#if collapsed}
-        <img src="/favicon/favicon-32x32.png" alt="LiHui" class="w-7 h-7 rounded-lg object-cover" />
+        <img src="/favicon/favicon-32x32.png?v=3" alt="LiHui" class="w-7 h-7 rounded-lg object-cover" />
       {:else}
-        <img src="/favicon/favicon-32x32.png" alt="LiHui" class="w-7 h-7 rounded-lg object-cover" />
+        <img src="/favicon/favicon-32x32.png?v=3" alt="LiHui" class="w-7 h-7 rounded-lg object-cover" />
         <span class="text-gray-900 dark:text-gray-100">LiHui</span>
         <span class="text-gray-400 dark:text-gray-500 ml-1 text-sm font-normal">管理后台</span>
       {/if}
