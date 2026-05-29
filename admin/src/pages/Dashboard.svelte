@@ -28,10 +28,10 @@ onMount(() => {
   return off
 })
 const statCards = $derived([
-  { icon: 'mdi:pencil-outline', label: '文章总数', value: stats.totalPosts, colorClass: 'text-gray-700 dark:text-gray-300', bgClass: 'bg-gray-100/80 dark:bg-gray-700/50' },
-  { icon: 'mdi:comment-outline', label: '评论总数', value: stats.totalComments, colorClass: 'text-green-500 dark:text-green-400', bgClass: 'bg-green-50/80 dark:bg-green-900/30' },
-  { icon: 'mdi:clock-outline', label: '待审核评论', value: stats.pendingComments, colorClass: 'text-yellow-500 dark:text-yellow-400', bgClass: 'bg-yellow-50/80 dark:bg-yellow-900/30' },
-  { icon: 'mdi:folder-outline', label: '分类数量', value: stats.totalCategories, colorClass: 'text-purple-500 dark:text-purple-400', bgClass: 'bg-purple-50/80 dark:bg-purple-900/30' },
+  { icon: 'mdi:pencil-outline', label: '文章总数', value: stats.totalPosts, colorClass: 'text-gray-700 dark:text-gray-300', bgClass: 'bg-gray-100/80 dark:bg-gray-700/50', href: '#/posts' },
+  { icon: 'mdi:comment-outline', label: '评论总数', value: stats.totalComments, colorClass: 'text-green-500 dark:text-green-400', bgClass: 'bg-green-50/80 dark:bg-green-900/30', href: '#/comments' },
+  { icon: 'mdi:clock-outline', label: '待审核评论', value: stats.pendingComments, colorClass: 'text-yellow-500 dark:text-yellow-400', bgClass: 'bg-yellow-50/80 dark:bg-yellow-900/30', href: '#/comments?filterStatus=pending' },
+  { icon: 'mdi:folder-outline', label: '分类数量', value: stats.totalCategories, colorClass: 'text-purple-500 dark:text-purple-400', bgClass: 'bg-purple-50/80 dark:bg-purple-900/30', href: '#/categories' },
 ])
 </script>
 {#if loading}
@@ -40,12 +40,12 @@ const statCards = $derived([
   <div class="space-y-6">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {#each statCards as card (card.label)}
-        <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-gray-700 p-5">
+        <a href={card.href} class="block bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-gray-200 dark:border-gray-700 p-5 cursor-pointer hover:shadow-md hover:scale-[1.02] transition-all duration-200">
           <div class="flex items-center gap-4">
             <div class="flex-shrink-0 w-12 h-12 rounded-xl {card.bgClass} flex items-center justify-center"><Icon icon={card.icon} width="24" height="24" class={card.colorClass} /></div>
             <div><div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{card.value}</div><div class="text-sm text-gray-500 dark:text-gray-400">{card.label}</div></div>
           </div>
-        </div>
+        </a>
       {/each}
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

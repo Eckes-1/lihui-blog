@@ -7,6 +7,8 @@
   let songs = $state([])
   let loading = $state(true)
   let search = $state('')
+  let musicPage = $state(1)
+  let musicPageSize = $state(20)
 
   let showAddForm = $state(false)
   let editingId = $state(null)
@@ -43,6 +45,11 @@
       return s.title.toLowerCase().includes(q) || (s.artist || '').toLowerCase().includes(q)
     }) : songs
   )
+
+  $effect(() => { search; musicPage = 1 })
+
+  let totalPages = $derived(Math.max(1, Math.ceil(filteredSongs.length / musicPageSize)))
+  let pagedSongs = $derived(filteredSongs.slice((musicPage - 1) * musicPageSize, musicPage * musicPageSize))
 
   let stats = $derived({
     total: songs.length,
@@ -443,9 +450,9 @@
                 </td>
               </tr>
             {:else}
-              {#each filteredSongs as song, i}
+              {#each pagedSongs as song, i}
                 <tr class="hover:bg-white/30 dark:hover:bg-gray-700/30 transition-colors">
-                  <td class="px-5 py-3 text-sm text-gray-400 dark:text-gray-500 text-center">{i + 1}</td>
+                  <td class="px-5 py-3 text-sm text-gray-400 dark:text-gray-500 text-center">{(musicPage - 1) * musicPageSize + i + 1}</td>
                   <td class="px-3 py-3">
                     {#if song.cover_path}
                       <img src={song.cover_path} alt="" class="w-9 h-9 rounded-lg object-cover" />
@@ -489,6 +496,28 @@
         </table>
       </div>
     </div>
+
+    {#if filteredSongs.length > musicPageSize}
+      <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] border border-gray-200 dark:border-gray-700 px-4 py-3">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">共 {filteredSongs.length} 首</span>
+            <select onchange={(e) => { musicPageSize = parseInt(e.target.value); musicPage = 1 }} class="px-2 py-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-sm text-gray-700 dark:text-gray-300 outline-none focus:ring-2 focus:ring-gray-400">
+              <option value="10" selected={musicPageSize === 10}>10条/页</option>
+              <option value="20" selected={musicPageSize === 20}>20条/页</option>
+              <option value="50" selected={musicPageSize === 50}>50条/页</option>
+            </select>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button onclick={() => { if (musicPage > 1) musicPage-- }} disabled={musicPage <= 1} class="px-3 py-1 rounded-full text-sm border border-gray-200 dark:border-gray-700 hover:bg-white/60 dark:hover:bg-gray-700/60 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">上一页</button>
+            <button onclick={() => { if (musicPage < totalPages) musicPage++ }} disabled={musicPage >= totalPages} class="px-3 py-1 rounded-full text-sm border border-gray-200 dark:border-gray-700 hover:bg-white/60 dark:hover:bg-gray-700/60 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">下一页</button>
+          </div>
+        </div>
+        <div class="flex items-center justify-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+          <span class="text-sm text-gray-400 dark:text-gray-500">第 {musicPage} / {totalPages} 页</span>
+        </div>
+      </div>
+    {/if}
   {/if}
 
   {#if activeTab === 'netease'}
