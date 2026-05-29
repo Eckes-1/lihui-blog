@@ -388,29 +388,29 @@
     </button>
   </div>
 
-  <div class="flex gap-3 overflow-x-auto pb-1">
-    <button onclick={() => { sourceFilter = ''; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 min-w-[90px] flex-1 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === '' ? 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
-      <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">全部歌曲</p>
+  <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
+    <button onclick={() => { sourceFilter = ''; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === '' ? 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
+      <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">全部</p>
       <p class="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
     </button>
-    <button onclick={() => { sourceFilter = 'netease'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 min-w-[90px] flex-1 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'netease' ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
+    <button onclick={() => { sourceFilter = 'netease'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'netease' ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
       <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">网易云</p>
       <p class="text-xl font-bold text-red-500 dark:text-red-400">{stats.netease}</p>
     </button>
-    <button onclick={() => { sourceFilter = 'qq'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 min-w-[90px] flex-1 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'qq' ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
-      <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">QQ音乐</p>
+    <button onclick={() => { sourceFilter = 'qq'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'qq' ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
+      <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">QQ</p>
       <p class="text-xl font-bold text-green-600 dark:text-green-400">{stats.qq}</p>
     </button>
-    <button onclick={() => { sourceFilter = 'kugou'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 min-w-[90px] flex-1 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'kugou' ? 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
+    <button onclick={() => { sourceFilter = 'kugou'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'kugou' ? 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
       <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">酷狗</p>
       <p class="text-xl font-bold text-blue-600 dark:text-blue-400">{stats.kugou}</p>
     </button>
-    <button onclick={() => { sourceFilter = 'external'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 min-w-[90px] flex-1 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'external' ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
+    <button onclick={() => { sourceFilter = 'external'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'external' ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
       <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">网络</p>
       <p class="text-xl font-bold text-amber-600 dark:text-amber-400">{stats.external}</p>
     </button>
-    <button onclick={() => { sourceFilter = 'upload'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 min-w-[90px] flex-1 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'upload' ? 'border-gray-400 dark:border-gray-500 bg-gray-100 dark:bg-gray-700/50' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
-      <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">本地上传</p>
+    <button onclick={() => { sourceFilter = 'upload'; musicPage = 1 }} class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border p-3 text-left transition-all duration-200 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:shadow-md hover:scale-[1.02] {sourceFilter === 'upload' ? 'border-gray-400 dark:border-gray-500 bg-gray-100 dark:bg-gray-700/50' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'}">
+      <p class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">本地</p>
       <p class="text-xl font-bold text-gray-600 dark:text-gray-300">{stats.upload}</p>
     </button>
   </div>
@@ -500,13 +500,13 @@
                     {/if}
                   </td>
                   <td class="px-3 py-3 text-sm text-gray-500 dark:text-gray-400 tabular-nums">{song.duration ? formatTime(song.duration) : '--'}</td>
-                  <td class="px-5 py-3 text-right">
-                    <div class="flex items-center justify-end gap-1">
-                      <button onclick={() => openEdit(song)} class="text-xs px-2.5 py-1 rounded-full text-gray-900 dark:text-gray-100 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">编辑</button>
+                  <td class="px-3 sm:px-5 py-3 text-right whitespace-nowrap">
+                    <div class="flex items-center justify-end gap-1 flex-nowrap">
+                      <button onclick={() => openEdit(song)} class="text-xs px-2 py-1 sm:px-2.5 rounded-full text-gray-900 dark:text-gray-100 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors whitespace-nowrap">编辑</button>
                       {#if song.external_url}
-                        <a href={song.external_url} target="_blank" rel="noopener" class="text-xs px-2.5 py-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">链接</a>
+                        <a href={song.external_url} target="_blank" rel="noopener" class="text-xs px-2 py-1 sm:px-2.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors whitespace-nowrap">链接</a>
                       {/if}
-                      <button onclick={() => deletingId = song.id} class="text-xs px-2.5 py-1 rounded-full text-red-600 dark:text-red-400 hover:bg-red-50/60 dark:hover:bg-red-900/30 transition-colors">删除</button>
+                      <button onclick={() => deletingId = song.id} class="text-xs px-2 py-1 sm:px-2.5 rounded-full text-red-600 dark:text-red-400 hover:bg-red-50/60 dark:hover:bg-red-900/30 transition-colors whitespace-nowrap">删除</button>
                     </div>
                   </td>
                 </tr>
