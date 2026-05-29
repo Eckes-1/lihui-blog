@@ -486,17 +486,17 @@
                     <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-[200px]">{song.title}</div>
                     <div class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{song.artist || '未知艺术家'}</div>
                   </td>
-                  <td class="px-3 py-3">
+                  <td class="px-3 py-3 whitespace-nowrap">
                     {#if song.source === 'netease'}
-                      <span class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 font-medium">网易云</span>
+                      <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 font-medium">网易</span>
                     {:else if song.source === 'qq'}
-                      <span class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-medium">QQ音乐</span>
+                      <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-medium">QQ</span>
                     {:else if song.source === 'kugou'}
-                      <span class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">酷狗</span>
+                      <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium">酷狗</span>
                     {:else if song.source === 'external'}
-                      <span class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 font-medium">网络</span>
+                      <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 font-medium">网络</span>
                     {:else}
-                      <span class="inline-block text-xs px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 font-medium">本地</span>
+                      <span class="inline-block text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 font-medium">本地</span>
                     {/if}
                   </td>
                   <td class="px-3 py-3 text-sm text-gray-500 dark:text-gray-400 tabular-nums">{song.duration ? formatTime(song.duration) : '--'}</td>
