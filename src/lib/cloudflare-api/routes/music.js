@@ -343,6 +343,29 @@ export function registerMusicRoutes(app) {
     }
   }
 
+  async function safePostFetch(url, body, customHeaders) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 10000)
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          ...(customHeaders || {})
+        },
+        body: typeof body === 'string' ? body : new URLSearchParams(body).toString(),
+        signal: controller.signal
+      })
+      if (!resp.ok) return null
+      const text = await resp.text()
+      try { return JSON.parse(text) } catch { return null }
+    } catch {
+      return null
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
   async function metingProxy(server, type, id) {
     const url = `${METING_API}?server=${server}&type=${type}&id=${encodeURIComponent(id)}`
     const controller = new AbortController()
@@ -367,26 +390,27 @@ export function registerMusicRoutes(app) {
     if (!keyword) return c.json({ error: '请输入搜索关键词' }, 400)
 
     try {
-      const searchUrls = [
-        `https://interface3.music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
-        `https://music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
-        `https://interface.music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
-        `https://interface3.music.163.com/api/search/get?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
-        `https://music.163.com/api/search/get?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
-      ]
+      let data = await safePostFetch('https://apis.netstart.cn/music/search', {
+        keywords: keyword,
+        type: 1,
+        limit: 999999,
+        offset: 0
+      })
 
-      let data = null
-      for (const url of searchUrls) {
-        data = await safeFetch(url)
-        if (data && data.code === 200 && data.result && data.result.songs) break
-        data = await safeFetch(url, { 'User-Agent': 'NetEaseMusic/8.0.0.1125(80001125)' })
-        if (data && data.code === 200 && data.result && data.result.songs) break
+      if (!data || !data.result || !data.result.songs) {
+        const searchUrls = [
+          `https://interface3.music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
+          `https://music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
+        ]
+        for (const url of searchUrls) {
+          data = await safeFetch(url)
+          if (data && data.code === 200 && data.result && data.result.songs) break
+        }
       }
 
-      if (!data || data.code !== 200 || !data.result || !data.result.songs) {
+      if (!data) {
         return c.json({ songs: [], message: '无法连接网易云服务，请稍后再试' })
       }
-
       if (!data.result || !data.result.songs || data.result.songs.length === 0) {
         return c.json({ songs: [], message: '未找到相关歌曲' })
       }
@@ -394,10 +418,10 @@ export function registerMusicRoutes(app) {
       const songs = data.result.songs.map(s => ({
         id: s.id,
         title: s.name,
-        artist: (s.artists || []).map(a => a.name).join(' / '),
-        album: (s.album || {}).name || '',
-        duration: Math.round((s.duration || 0) / 1000),
-        cover: (s.album || {}).picUrl || '',
+        artist: (s.artists || s.ar || []).map(a => a.name).join(' / '),
+        album: (s.album || s.al || {}).name || '',
+        duration: Math.round((s.duration || s.dt || 0) / 1000),
+        cover: (s.album || s.al || {}).picUrl || '',
         external_url: `https://music.163.com/song/media/outer/url?id=${s.id}.mp3`
       }))
 
@@ -413,16 +437,19 @@ export function registerMusicRoutes(app) {
 
     const songId = c.req.param('id')
     try {
-      const songUrls = [
-        `https://interface3.music.163.com/api/song/detail/?id=${songId}&ids=%5B${songId}%5D`,
-        `https://music.163.com/api/song/detail/?id=${songId}&ids=%5B${songId}%5D`,
-        `https://interface.music.163.com/api/song/detail/?id=${songId}&ids=%5B${songId}%5D`,
-      ]
+      let data = await safePostFetch('https://apis.netstart.cn/music/song/detail', {
+        ids: songId
+      })
 
-      let data = null
-      for (const url of songUrls) {
-        data = await safeFetch(url)
-        if (data && data.code === 200 && data.songs && data.songs.length > 0) break
+      if (!data || data.code !== 200 || !data.songs || data.songs.length === 0) {
+        const songUrls = [
+          `https://interface3.music.163.com/api/song/detail/?id=${songId}&ids=%5B${songId}%5D`,
+          `https://music.163.com/api/song/detail/?id=${songId}&ids=%5B${songId}%5D`,
+        ]
+        for (const url of songUrls) {
+          data = await safeFetch(url)
+          if (data && data.code === 200 && data.songs && data.songs.length > 0) break
+        }
       }
 
       if (!data || data.code !== 200 || !data.songs || data.songs.length === 0) {
@@ -433,10 +460,10 @@ export function registerMusicRoutes(app) {
       const song = {
         id: s.id,
         title: s.name,
-        artist: (s.artists || []).map(a => a.name).join(' / '),
-        album: (s.album || {}).name || '',
-        duration: Math.round((s.duration || 0) / 1000),
-        cover: (s.album || {}).picUrl || '',
+        artist: (s.artists || s.ar || []).map(a => a.name).join(' / '),
+        album: (s.album || s.al || {}).name || '',
+        duration: Math.round((s.duration || s.dt || 0) / 1000),
+        cover: (s.album || s.al || {}).picUrl || '',
         external_url: `https://music.163.com/song/media/outer/url?id=${s.id}.mp3`
       }
 
@@ -452,18 +479,20 @@ export function registerMusicRoutes(app) {
 
     const playlistId = c.req.param('id')
     try {
-      const playlistUrls = [
-        `https://interface3.music.163.com/api/v6/playlist/detail?id=${playlistId}&n=100000`,
-        `https://music.163.com/api/v6/playlist/detail?id=${playlistId}&n=100000`,
-        `https://interface.music.163.com/api/v6/playlist/detail?id=${playlistId}&n=100000`,
-        `https://interface3.music.163.com/api/playlist/detail?id=${playlistId}`,
-        `https://music.163.com/api/playlist/detail?id=${playlistId}`,
-      ]
+      let data = await safePostFetch('https://apis.netstart.cn/music/playlist/detail', {
+        id: playlistId,
+        n: 100000
+      })
 
-      let data = null
-      for (const url of playlistUrls) {
-        data = await safeFetch(url)
-        if (data && data.code === 200 && data.playlist) break
+      if (!data || data.code !== 200 || !data.playlist) {
+        const playlistUrls = [
+          `https://interface3.music.163.com/api/v6/playlist/detail?id=${playlistId}&n=100000`,
+          `https://music.163.com/api/v6/playlist/detail?id=${playlistId}&n=100000`,
+        ]
+        for (const url of playlistUrls) {
+          data = await safeFetch(url)
+          if (data && data.code === 200 && data.playlist) break
+        }
       }
 
       if (!data || data.code !== 200 || !data.playlist) {
