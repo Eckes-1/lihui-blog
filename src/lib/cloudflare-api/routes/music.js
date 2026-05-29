@@ -391,7 +391,7 @@ export function registerMusicRoutes(app) {
     if (!keyword) return c.json({ error: '请输入搜索关键词' }, 400)
 
     try {
-      let data = await safeFetch(`${NETEASE_API}/search?keywords=${encodeURIComponent(keyword)}&limit=100&offset=0`)
+      let data = await safeFetch(`${NETEASE_API}/search?keywords=${encodeURIComponent(keyword)}&limit=100&offset=0`, {})
 
       if (!data || data.code !== 200 || !data.result || !data.result.songs) {
         data = await safePostFetch('https://apis.netstart.cn/music/search', {
@@ -426,9 +426,24 @@ export function registerMusicRoutes(app) {
         artist: (s.artists || s.ar || []).map(a => a.name).join(' / '),
         album: (s.album || s.al || {}).name || '',
         duration: Math.round((s.duration || s.dt || 0) / 1000),
-        cover: (s.album || s.al || {}).picUrl || '',
+        cover: '',
         external_url: `https://music.163.com/song/media/outer/url?id=${s.id}.mp3`
       }))
+
+      const coverMap = {}
+      try {
+        const allIds = songs.map(s => s.id)
+        const batchSize = 50
+        for (let i = 0; i < allIds.length; i += batchSize) {
+          const batchIds = allIds.slice(i, i + batchSize)
+          const idsParam = encodeURIComponent(JSON.stringify(batchIds))
+          const detailData = await safeFetch(`${NETEASE_API}/song/detail?ids=${idsParam}`, {})
+          if (detailData && detailData.songs) {
+            detailData.songs.forEach(s => { coverMap[s.id] = (s.al || {}).picUrl || '' })
+          }
+        }
+      } catch {}
+      songs.forEach(s => { if (coverMap[s.id]) s.cover = coverMap[s.id] })
 
       return c.json({ songs })
     } catch (err) {
@@ -496,7 +511,7 @@ export function registerMusicRoutes(app) {
 
     const songId = c.req.param('id')
     try {
-      let data = await safeFetch(`${NETEASE_API}/song/detail?ids=${songId}`)
+      let data = await safeFetch(`${NETEASE_API}/song/detail?ids=${songId}`, {})
 
       if (!data || data.code !== 200 || !data.songs || data.songs.length === 0) {
         data = await safePostFetch('https://apis.netstart.cn/music/song/detail', {
@@ -542,7 +557,7 @@ export function registerMusicRoutes(app) {
 
     const playlistId = c.req.param('id')
     try {
-      let data = await safeFetch(`${NETEASE_API}/playlist/detail?id=${playlistId}`)
+      let data = await safeFetch(`${NETEASE_API}/playlist/detail?id=${playlistId}`, {})
 
       if (!data || data.code !== 200 || !data.playlist) {
         data = await safePostFetch('https://apis.netstart.cn/music/playlist/detail', {
@@ -734,10 +749,31 @@ export function registerMusicRoutes(app) {
         artist: (s.author_name || (s.authors && s.authors.map(a => a.author_name).join(' / ')) || '').replace(/<[^>]*>/g, ''),
         album: (s.album_name || '').replace(/<[^>]*>/g, ''),
         duration: s.duration ? Math.round(s.duration) : 0,
-        cover: s.img ? s.img.replace('{size}', '300') : (s.album_img ? s.album_img.replace('{size}', '300') : ''),
+        cover: '',
+        _album_id: s.album_id || '',
         external_url: `kugou:${s.hash}`
       }))
 
+      try {
+        const albumIds = [...new Set(songs.map(s => s._album_id).filter(Boolean))]
+        if (albumIds.length > 0) {
+          const coverMap = {}
+          await Promise.all(albumIds.slice(0, 20).map(async aid => {
+            try {
+              const albumData = await safeFetch(
+                `https://mobileservice.kugou.com/api/v3/album/info?albumid=${aid}`,
+                KUGOU_HEADERS
+              )
+              if (albumData && albumData.data && albumData.data.imgurl) {
+                coverMap[aid] = albumData.data.imgurl.replace('{size}', '400')
+              }
+            } catch {}
+          }))
+          songs.forEach(s => { if (s._album_id && coverMap[s._album_id]) s.cover = coverMap[s._album_id] })
+        }
+      } catch {}
+
+      songs.forEach(s => { delete s._album_id })
       return c.json({ songs })
     } catch (err) {
       return c.json({ songs: [], message: '搜索失败: ' + (err.message || '请稍后再试') })
@@ -803,6 +839,107 @@ export function registerMusicRoutes(app) {
       return c.json(updated)
     } catch (err) {
       return c.json({ error: '服务器内部错误' }, 500)
+    }
+  })
+
+  app.post('/api/music/update-covers', async (c) => {
+    const user = c.get('user')
+    if (!user) return c.json({ error: '未认证' }, 401)
+
+    try {
+      const { results } = await c.env.DB.prepare(
+        "SELECT id, title, artist, source, external_url FROM music WHERE cover_path = '' OR cover_path IS NULL"
+      ).all()
+
+      const songs = results || []
+      let updated = 0
+
+      const neteaseSongs = songs.filter(s => s.source === 'netease')
+      const qqSongs = songs.filter(s => s.source === 'qq')
+      const kugouSongs = songs.filter(s => s.source === 'kugou')
+
+      if (neteaseSongs.length > 0) {
+        const idMap = {}
+        const neteaseIds = []
+        for (const song of neteaseSongs) {
+          const match = (song.external_url || '').match(/id=(\d+)/)
+          if (match) {
+            const songId = Number(match[1])
+            idMap[songId] = song.id
+            neteaseIds.push(songId)
+          }
+        }
+
+        const batchSize = 50
+        const coverMap = {}
+        for (let i = 0; i < neteaseIds.length; i += batchSize) {
+          const batchIds = neteaseIds.slice(i, i + batchSize)
+          const idsParam = encodeURIComponent(JSON.stringify(batchIds))
+          const detailData = await safeFetch(`${NETEASE_API}/song/detail?ids=${idsParam}`, {})
+          if (detailData && detailData.songs) {
+            detailData.songs.forEach(s => {
+              const picUrl = (s.al || {}).picUrl || ''
+              if (picUrl) coverMap[s.id] = picUrl
+            })
+          }
+        }
+
+        for (const [songId, dbId] of Object.entries(idMap)) {
+          const coverUrl = coverMap[songId]
+          if (coverUrl) {
+            await c.env.DB.prepare('UPDATE music SET cover_path = ? WHERE id = ?').bind(coverUrl, dbId).run()
+            updated++
+          }
+        }
+      }
+
+      for (const song of qqSongs) {
+        const match = (song.external_url || '').match(/^tencent:(.+)$/)
+        if (!match) continue
+        const songMid = match[1]
+        try {
+          const qqData = await safeFetch(
+            `https://c.y.qq.com/v8/fcg-bin/fcg_play_single_song.fcg?songmid=${encodeURIComponent(songMid)}&format=json`,
+            QQ_HEADERS
+          )
+          if (qqData && qqData.data && qqData.data.track_info && qqData.data.track_info.album && qqData.data.track_info.album.mid) {
+            const albumMid = qqData.data.track_info.album.mid
+            const coverUrl = `https://y.gtimg.cn/music/photo_new/T002R300x300M000${albumMid}.jpg`
+            await c.env.DB.prepare('UPDATE music SET cover_path = ? WHERE id = ?').bind(coverUrl, song.id).run()
+            updated++
+          }
+        } catch {}
+      }
+
+      for (const song of kugouSongs) {
+        const match = (song.external_url || '').match(/^kugou:(.+)$/)
+        if (!match) continue
+        const hash = match[1]
+        try {
+          const songData = await safeFetch(
+            `https://www.kugou.com/yy/index.php?r=play/getdata&hash=${encodeURIComponent(hash)}`,
+            KUGOU_HEADERS
+          )
+          if (songData && songData.data && songData.data.img) {
+            await c.env.DB.prepare('UPDATE music SET cover_path = ? WHERE id = ?').bind(songData.data.img, song.id).run()
+            updated++
+          } else if (songData && songData.data && songData.data.album_id) {
+            const albumData = await safeFetch(
+              `https://mobileservice.kugou.com/api/v3/album/info?albumid=${songData.data.album_id}`,
+              KUGOU_HEADERS
+            )
+            if (albumData && albumData.data && albumData.data.imgurl) {
+              const coverUrl = albumData.data.imgurl.replace('{size}', '400')
+              await c.env.DB.prepare('UPDATE music SET cover_path = ? WHERE id = ?').bind(coverUrl, song.id).run()
+              updated++
+            }
+          }
+        } catch {}
+      }
+
+      return c.json({ updated, total: songs.length })
+    } catch (err) {
+      return c.json({ error: '更新封面失败: ' + (err.message || '服务器内部错误') }, 500)
     }
   })
 }

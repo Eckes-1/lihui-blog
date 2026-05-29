@@ -40,6 +40,7 @@
   let batchImporting = $state(false)
 
   let sourceFilter = $state('')
+  let coverUpdating = $state(false)
 
   let filteredSongs = $derived(
     sourceFilter
@@ -168,9 +169,26 @@
       artist: (s.artists || s.ar || []).map(a => a.name).join(' / '),
       album: (s.album || s.al || {}).name || '',
       duration: Math.round((s.duration || s.dt || 0) / 1000),
-      cover: (s.album || s.al || {}).picUrl || '',
+      cover: '',
       external_url: `https://music.163.com/song/media/outer/url?id=${s.id}.mp3`
     }))
+    try {
+      const allIds = songs.map(s => s.id)
+      const batchSize = 50
+      const coverMap = {}
+      for (let i = 0; i < allIds.length; i += batchSize) {
+        const batchIds = allIds.slice(i, i + batchSize)
+        const idsParam = encodeURIComponent(JSON.stringify(batchIds))
+        const detailResp = await fetch(`${NETEASE_API}/song/detail?ids=${idsParam}`)
+        if (detailResp.ok) {
+          const detailData = await detailResp.json()
+          if (detailData.songs) {
+            detailData.songs.forEach(s => { coverMap[s.id] = (s.al || {}).picUrl || '' })
+          }
+        }
+      }
+      songs.forEach(s => { if (coverMap[s.id]) s.cover = coverMap[s.id] })
+    } catch {}
     return { songs }
   }
 
@@ -349,6 +367,18 @@
     batchImporting = false
   }
 
+  async function handleUpdateCovers() {
+    coverUpdating = true
+    try {
+      const result = await music.updateCovers()
+      addToast(`已更新 ${result.updated}/${result.total} 首歌曲的封面`, 'success')
+      loadData()
+    } catch (e) {
+      addToast(e.message || '更新封面失败', 'error')
+    }
+    coverUpdating = false
+  }
+
   function formatTime(s) {
     if (!s || isNaN(s)) return '--'
     const m = Math.floor(s / 60)
@@ -380,12 +410,19 @@
 <div class="space-y-4">
   <div class="flex items-center justify-between">
     <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">音乐管理</h2>
-    <button
-      onclick={openAdd}
-      class="px-5 py-2 rounded-full bg-gray-900/80 dark:bg-gray-100/80 backdrop-blur hover:bg-gray-800/80 dark:hover:bg-gray-200/80 text-white dark:text-gray-900 text-sm font-medium transition-colors"
-    >
-      + 添加歌曲
-    </button>
+    <div class="flex items-center gap-2">
+      <button
+        onclick={handleUpdateCovers}
+        disabled={coverUpdating}
+        class="px-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur hover:bg-white/80 dark:hover:bg-gray-700/80 text-gray-700 dark:text-gray-300 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >{coverUpdating ? '更新中...' : '更新封面'}</button>
+      <button
+        onclick={openAdd}
+        class="px-5 py-2 rounded-full bg-gray-900/80 dark:bg-gray-100/80 backdrop-blur hover:bg-gray-800/80 dark:hover:bg-gray-200/80 text-white dark:text-gray-900 text-sm font-medium transition-colors"
+      >
+        + 添加歌曲
+      </button>
+    </div>
   </div>
 
   <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">

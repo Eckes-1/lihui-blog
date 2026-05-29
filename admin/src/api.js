@@ -472,5 +472,6 @@ export const music = {
   qqPlaylist(id) { return request(`/music/qq/playlist/${id}`) },
   kugouSearch(keyword) { return request(`/music/kugou/search?keyword=${encodeURIComponent(keyword)}`) },
   kugouSong(hash) { return request(`/music/kugou/song/${hash}`) },
+  updateCovers() { return request('/music/update-covers', { method: 'POST' }) },
   importSongs(songs, source = 'external') { return request('/music/netease/import', { method: 'POST', body: JSON.stringify({ songs, source }) }) }
 }
