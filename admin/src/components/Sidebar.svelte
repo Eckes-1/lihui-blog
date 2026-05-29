@@ -12,6 +12,7 @@ const navItems = [
   { icon: 'mdi:comment-outline', label: '评论管理', hash: '#/comments' },
   { icon: 'mdi:link-variant', label: '友链管理', hash: '#/links' },
   { icon: 'mdi:image-outline', label: '媒体库', hash: '#/media' },
+  { icon: 'mdi:music-note-outline', label: '音乐管理', hash: '#/music' },
   { icon: 'mdi:cog-outline', label: '站点配置', hash: '#/config' },
   { icon: 'mdi:email-outline', label: '邮件设置', hash: '#/email' },
   { icon: 'mdi:palette-outline', label: '主题设置', hash: '#/theme' },

@@ -14,6 +14,7 @@ import EmailSettings from './pages/EmailSettings.svelte'
 import Profile from './pages/Profile.svelte'
 import FriendLinks from './pages/FriendLinks.svelte'
 import Media from './pages/Media.svelte'
+import MusicManager from './pages/MusicManager.svelte'
 import ThemeSettings from './pages/ThemeSettings.svelte'
 import { onMount } from 'svelte'
 
@@ -122,6 +123,10 @@ let isLoginPage = $derived(currentRoute === '/login')
 {:else if currentRoute === '/media'}
   <Layout route={currentRoute}>
     <Media />
+  </Layout>
+{:else if currentRoute === '/music'}
+  <Layout route={currentRoute}>
+    <MusicManager />
   </Layout>
 {:else if currentRoute === '/theme'}
   <Layout route={currentRoute}>

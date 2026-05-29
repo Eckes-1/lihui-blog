@@ -454,7 +454,15 @@ function initMusicPlayer(container) {
     if (index < 0 || index >= songs.length) return;
     currentIndex = index;
     const song = songs[index];
-    audio.src = song.path;
+    if (song.source === 'qq' || song.source === 'kugou') {
+      audio.src = '/api/music/stream/' + song.id;
+    } else if ((song.source === 'external' || song.source === 'netease') && song.external_url) {
+      audio.src = song.external_url;
+    } else if (song.source === 'external' || song.source === 'netease') {
+      audio.src = '/api/music/stream/' + song.id;
+    } else {
+      audio.src = song.path;
+    }
     audio.load();
     audio.play().then(() => {
       isPlaying = true;
@@ -558,7 +566,7 @@ function initMusicPlayer(container) {
       if (audio.src && !audio.paused) {
         isPlaying = true;
         updatePlayIcon();
-        const idx = songs.findIndex(s => s.path === audio.src || audio.src.includes(s.path.split('/').pop()));
+        const idx = songs.findIndex(s => s.path === audio.src || s.external_url === audio.src || audio.src.includes(s.path.split('/').pop()));
         if (idx >= 0) currentIndex = idx;
         updateUI();
       }

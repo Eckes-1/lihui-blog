@@ -457,3 +457,20 @@ export const media = {
 export const dashboard = {
   getStats() { return request('/dashboard/stats') }
 }
+
+export const music = {
+  list() { return request('/music') },
+  get(id) { return request(`/music/stream/${id}`) },
+  add(data) { return request('/music/add', { method: 'POST', body: JSON.stringify(data) }) },
+  batch(songs) { return request('/music/batch', { method: 'POST', body: JSON.stringify({ songs }) }) },
+  update(id, data) { return request(`/music/${id}`, { method: 'PUT', body: JSON.stringify(data) }) },
+  delete(id) { return request(`/music/${id}`, { method: 'DELETE' }) },
+  neteaseSearch(keyword) { return request(`/music/netease/search?keyword=${encodeURIComponent(keyword)}`) },
+  neteasePlaylist(id) { return request(`/music/netease/playlist/${id}`) },
+  neteaseImport(songs) { return request('/music/netease/import', { method: 'POST', body: JSON.stringify({ songs }) }) },
+  qqSearch(keyword) { return request(`/music/qq/search?keyword=${encodeURIComponent(keyword)}`) },
+  qqPlaylist(id) { return request(`/music/qq/playlist/${id}`) },
+  kugouSearch(keyword) { return request(`/music/kugou/search?keyword=${encodeURIComponent(keyword)}`) },
+  kugouSong(hash) { return request(`/music/kugou/song/${hash}`) },
+  importSongs(songs, source = 'external') { return request('/music/netease/import', { method: 'POST', body: JSON.stringify({ songs, source }) }) }
+}
