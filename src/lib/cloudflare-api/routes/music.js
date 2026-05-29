@@ -648,6 +648,10 @@ export function registerMusicRoutes(app) {
       }
 
       const results = []
+      const needCoverNetease = []
+      const needCoverQQ = []
+      const needCoverKugou = []
+
       for (const item of songs) {
         const title = (item.title || '').trim()
         const artist = (item.artist || '').trim()
@@ -671,9 +675,101 @@ export function registerMusicRoutes(app) {
             'SELECT ' + SELECT_COLS + ' FROM music WHERE id = ?'
           ).bind(musicId).first()
 
+          if (!coverPath) {
+            if (source === 'netease') needCoverNetease.push({ id: musicId, url: externalUrl })
+            else if (source === 'qq') needCoverQQ.push({ id: musicId, url: externalUrl })
+            else if (source === 'kugou') needCoverKugou.push({ id: musicId, url: externalUrl })
+          }
+
           results.push({ ...song, status: 'ok' })
         } catch (err) {
           results.push({ title, status: 'error', reason: err.message })
+        }
+      }
+
+      if (needCoverNetease.length > 0) {
+        const idMap = {}
+        const neteaseIds = []
+        for (const item of needCoverNetease) {
+          const match = item.url.match(/id=(\d+)/)
+          if (match) {
+            const songId = Number(match[1])
+            idMap[songId] = item.id
+            neteaseIds.push(songId)
+          }
+        }
+        if (neteaseIds.length > 0) {
+          const batchSize = 50
+          const coverMap = {}
+          for (let i = 0; i < neteaseIds.length; i += batchSize) {
+            const batchIds = neteaseIds.slice(i, i + batchSize)
+            try {
+              const detailData = await safeFetch(`${NETEASE_API}/song/detail?ids=${batchIds.join(',')}`, {})
+              if (detailData && detailData.songs) {
+                detailData.songs.forEach(s => {
+                  const picUrl = (s.al || {}).picUrl || ''
+                  if (picUrl) coverMap[s.id] = picUrl
+                })
+              }
+            } catch {}
+          }
+          for (const [songId, dbId] of Object.entries(idMap)) {
+            if (coverMap[songId]) {
+              try {
+                await c.env.DB.prepare('UPDATE music SET cover_path = ? WHERE id = ?').bind(coverMap[songId], dbId).run()
+                const song = results.find(r => r.id === Number(dbId))
+                if (song) song.cover_path = coverMap[songId]
+              } catch {}
+            }
+          }
+        }
+      }
+
+      if (needCoverQQ.length > 0) {
+        for (const item of needCoverQQ) {
+          const match = item.url.match(/^tencent:(.+)$/)
+          if (!match) continue
+          try {
+            const qqData = await safeFetch(
+              `https://c.y.qq.com/v8/fcg-bin/fcg_play_single_song.fcg?songmid=${encodeURIComponent(match[1])}&format=json`,
+              QQ_HEADERS
+            )
+            if (qqData && qqData.data && qqData.data.track_info && qqData.data.track_info.album && qqData.data.track_info.album.mid) {
+              const coverUrl = `https://y.gtimg.cn/music/photo_new/T002R300x300M000${qqData.data.track_info.album.mid}.jpg`
+              await c.env.DB.prepare('UPDATE music SET cover_path = ? WHERE id = ?').bind(coverUrl, item.id).run()
+              const song = results.find(r => r.id === item.id)
+              if (song) song.cover_path = coverUrl
+            }
+          } catch {}
+        }
+      }
+
+      if (needCoverKugou.length > 0) {
+        for (const item of needCoverKugou) {
+          const match = item.url.match(/^kugou:(.+)$/)
+          if (!match) continue
+          try {
+            const songData = await safeFetch(
+              `https://www.kugou.com/yy/index.php?r=play/getdata&hash=${encodeURIComponent(match[1])}`,
+              KUGOU_HEADERS
+            )
+            if (songData && songData.data && songData.data.img) {
+              await c.env.DB.prepare('UPDATE music SET cover_path = ? WHERE id = ?').bind(songData.data.img, item.id).run()
+              const song = results.find(r => r.id === item.id)
+              if (song) song.cover_path = songData.data.img
+            } else if (songData && songData.data && songData.data.album_id) {
+              const albumData = await safeFetch(
+                `https://mobileservice.kugou.com/api/v3/album/info?albumid=${songData.data.album_id}`,
+                KUGOU_HEADERS
+              )
+              if (albumData && albumData.data && albumData.data.imgurl) {
+                const coverUrl = albumData.data.imgurl.replace('{size}', '400')
+                await c.env.DB.prepare('UPDATE music SET cover_path = ? WHERE id = ?').bind(coverUrl, item.id).run()
+                const song = results.find(r => r.id === item.id)
+                if (song) song.cover_path = coverUrl
+              }
+            }
+          } catch {}
         }
       }
 
