@@ -138,15 +138,13 @@
     }
   }
 
+  const NETEASE_API = 'https://neteasecloudmusicapi.ivelly.com'
+
   async function neteaseSearchDirect(keyword) {
-    const resp = await fetch('https://apis.netstart.cn/music/search', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ keywords: keyword, type: 1, limit: 999999, offset: 0 }).toString()
-    })
+    const resp = await fetch(`${NETEASE_API}/search?keywords=${encodeURIComponent(keyword)}&limit=100&offset=0`)
     if (!resp.ok) throw new Error('网易云服务请求失败')
     const data = await resp.json()
-    if (!data.result || !data.result.songs || data.result.songs.length === 0) {
+    if (data.code !== 200 || !data.result || !data.result.songs || data.result.songs.length === 0) {
       return { songs: [], message: '未找到相关歌曲' }
     }
     const songs = data.result.songs.map(s => ({
@@ -162,14 +160,10 @@
   }
 
   async function neteasePlaylistDirect(id) {
-    const resp = await fetch('https://apis.netstart.cn/music/playlist/detail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ id, n: 100000 }).toString()
-    })
+    const resp = await fetch(`${NETEASE_API}/playlist/detail?id=${id}`)
     if (!resp.ok) throw new Error('网易云服务请求失败')
     const data = await resp.json()
-    if (!data.playlist) throw new Error('无法获取歌单')
+    if (data.code !== 200 || !data.playlist) throw new Error('无法获取歌单')
     const playlist = data.playlist
     const songs = (playlist.tracks || []).map(s => ({
       id: s.id,

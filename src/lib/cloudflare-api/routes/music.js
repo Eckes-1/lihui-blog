@@ -1,4 +1,5 @@
 const METING_API = 'https://api.injahow.cn/meting/'
+const NETEASE_API = 'https://neteasecloudmusicapi.ivelly.com'
 
 export function registerMusicRoutes(app) {
   const CHUNK_SIZE = 500000
@@ -390,17 +391,21 @@ export function registerMusicRoutes(app) {
     if (!keyword) return c.json({ error: '请输入搜索关键词' }, 400)
 
     try {
-      let data = await safePostFetch('https://apis.netstart.cn/music/search', {
-        keywords: keyword,
-        type: 1,
-        limit: 999999,
-        offset: 0
-      })
+      let data = await safeFetch(`${NETEASE_API}/search?keywords=${encodeURIComponent(keyword)}&limit=100&offset=0`)
+
+      if (!data || data.code !== 200 || !data.result || !data.result.songs) {
+        data = await safePostFetch('https://apis.netstart.cn/music/search', {
+          keywords: keyword,
+          type: 1,
+          limit: 100,
+          offset: 0
+        })
+      }
 
       if (!data || !data.result || !data.result.songs) {
         const searchUrls = [
-          `https://interface3.music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
-          `https://music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=999999&offset=0`,
+          `https://interface3.music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=100&offset=0`,
+          `https://music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=100&offset=0`,
         ]
         for (const url of searchUrls) {
           data = await safeFetch(url)
@@ -439,28 +444,25 @@ export function registerMusicRoutes(app) {
     const results = {}
 
     try {
-      const resp = await fetch('https://apis.netstart.cn/music/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ keywords: keyword, type: 1, limit: 5, offset: 0 }).toString(),
+      const resp = await fetch(`${NETEASE_API}/search?keywords=${encodeURIComponent(keyword)}&limit=5&offset=0`, {
         signal: AbortSignal.timeout(10000)
       })
-      results.netstart_status = resp.status
-      results.netstart_ok = resp.ok
+      results.ivelly_status = resp.status
+      results.ivelly_ok = resp.ok
       const text = await resp.text()
-      results.netstart_raw_length = text.length
+      results.ivelly_raw_length = text.length
       try {
         const json = JSON.parse(text)
-        results.netstart_code = json.code
-        results.netstart_has_result = !!json.result
-        results.netstart_has_songs = !!(json.result && json.result.songs)
-        results.netstart_song_count = json.result && json.result.songs ? json.result.songs.length : 0
+        results.ivelly_code = json.code
+        results.ivelly_has_result = !!json.result
+        results.ivelly_has_songs = !!(json.result && json.result.songs)
+        results.ivelly_song_count = json.result && json.result.songs ? json.result.songs.length : 0
       } catch {
-        results.netstart_parse_error = true
-        results.netstart_raw_preview = text.substring(0, 200)
+        results.ivelly_parse_error = true
+        results.ivelly_raw_preview = text.substring(0, 200)
       }
     } catch (e) {
-      results.netstart_error = e.message
+      results.ivelly_error = e.message
     }
 
     try {
@@ -494,9 +496,13 @@ export function registerMusicRoutes(app) {
 
     const songId = c.req.param('id')
     try {
-      let data = await safePostFetch('https://apis.netstart.cn/music/song/detail', {
-        ids: songId
-      })
+      let data = await safeFetch(`${NETEASE_API}/song/detail?ids=${songId}`)
+
+      if (!data || data.code !== 200 || !data.songs || data.songs.length === 0) {
+        data = await safePostFetch('https://apis.netstart.cn/music/song/detail', {
+          ids: songId
+        })
+      }
 
       if (!data || data.code !== 200 || !data.songs || data.songs.length === 0) {
         const songUrls = [
@@ -536,10 +542,14 @@ export function registerMusicRoutes(app) {
 
     const playlistId = c.req.param('id')
     try {
-      let data = await safePostFetch('https://apis.netstart.cn/music/playlist/detail', {
-        id: playlistId,
-        n: 100000
-      })
+      let data = await safeFetch(`${NETEASE_API}/playlist/detail?id=${playlistId}`)
+
+      if (!data || data.code !== 200 || !data.playlist) {
+        data = await safePostFetch('https://apis.netstart.cn/music/playlist/detail', {
+          id: playlistId,
+          n: 100000
+        })
+      }
 
       if (!data || data.code !== 200 || !data.playlist) {
         const playlistUrls = [

@@ -38,6 +38,9 @@ importers:
       '@iconify/svelte':
         specifier: ^5.2.1
         version: 5.2.1(svelte@5.55.5)
+      '@meting/core':
+        specifier: ^1.6.1
+        version: 1.6.1
       '@myriaddreamin/typst-ts-node-compiler':
         specifier: 0.7.0-rc2
         version: 0.7.0-rc2
@@ -866,6 +869,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@meting/core@1.6.1':
+    resolution: {integrity: sha512-6LPRZlZc8hUc0Jmg74tbMBLeoyXoyttPBLoNNpybLZ6GY+de95h9w3YQGh0yDwnrSivqcHMGZ5u5VJym5PdY1w==}
 
   '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi@0.7.0-rc2':
     resolution: {integrity: sha512-OnfUH3XbGel3+QUZc4G3+V1npXYGCDc3b7WhFw88ihCH/Xpw+NNjidLrFkY6kK2a5vVHnY2AEG0hJSwZzvOw0Q==}
@@ -4242,6 +4248,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@meting/core@1.6.1': {}
 
   '@myriaddreamin/typst-ts-node-compiler-android-arm-eabi@0.7.0-rc2':
     optional: true
