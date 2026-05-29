@@ -178,7 +178,7 @@
       const coverMap = {}
       for (let i = 0; i < allIds.length; i += batchSize) {
         const batchIds = allIds.slice(i, i + batchSize)
-        const idsParam = encodeURIComponent(JSON.stringify(batchIds))
+        const idsParam = batchIds.join(',')
         const detailResp = await fetch(`${NETEASE_API}/song/detail?ids=${idsParam}`)
         if (detailResp.ok) {
           const detailData = await detailResp.json()

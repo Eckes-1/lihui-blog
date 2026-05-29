@@ -436,7 +436,7 @@ export function registerMusicRoutes(app) {
         const batchSize = 50
         for (let i = 0; i < allIds.length; i += batchSize) {
           const batchIds = allIds.slice(i, i + batchSize)
-          const idsParam = encodeURIComponent(JSON.stringify(batchIds))
+          const idsParam = batchIds.join(',')
           const detailData = await safeFetch(`${NETEASE_API}/song/detail?ids=${idsParam}`, {})
           if (detailData && detailData.songs) {
             detailData.songs.forEach(s => { coverMap[s.id] = (s.al || {}).picUrl || '' })
@@ -472,12 +472,44 @@ export function registerMusicRoutes(app) {
         results.ivelly_has_result = !!json.result
         results.ivelly_has_songs = !!(json.result && json.result.songs)
         results.ivelly_song_count = json.result && json.result.songs ? json.result.songs.length : 0
+        if (json.result && json.result.songs) {
+          results.ivelly_song_ids = json.result.songs.map(s => s.id)
+        }
       } catch {
         results.ivelly_parse_error = true
         results.ivelly_raw_preview = text.substring(0, 200)
       }
     } catch (e) {
       results.ivelly_error = e.message
+    }
+
+    try {
+      const ids = results.ivelly_song_ids || [509781655, 5257138]
+      const idsParam = ids.join(',')
+      const resp = await fetch(`${NETEASE_API}/song/detail?ids=${idsParam}`, {
+        signal: AbortSignal.timeout(10000)
+      })
+      results.detail_status = resp.status
+      results.detail_ok = resp.ok
+      results.detail_url = `${NETEASE_API}/song/detail?ids=${idsParam}`
+      const text = await resp.text()
+      results.detail_raw_length = text.length
+      try {
+        const json = JSON.parse(text)
+        results.detail_code = json.code
+        results.detail_has_songs = !!(json.songs && json.songs.length > 0)
+        if (json.songs) {
+          results.detail_covers = json.songs.map(s => ({
+            id: s.id,
+            picUrl: (s.al || {}).picUrl || 'NONE'
+          }))
+        }
+      } catch {
+        results.detail_parse_error = true
+        results.detail_raw_preview = text.substring(0, 200)
+      }
+    } catch (e) {
+      results.detail_error = e.message
     }
 
     try {
@@ -874,7 +906,7 @@ export function registerMusicRoutes(app) {
         const coverMap = {}
         for (let i = 0; i < neteaseIds.length; i += batchSize) {
           const batchIds = neteaseIds.slice(i, i + batchSize)
-          const idsParam = encodeURIComponent(JSON.stringify(batchIds))
+          const idsParam = batchIds.join(',')
           const detailData = await safeFetch(`${NETEASE_API}/song/detail?ids=${idsParam}`, {})
           if (detailData && detailData.songs) {
             detailData.songs.forEach(s => {
