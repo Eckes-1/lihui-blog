@@ -138,6 +138,57 @@
     }
   }
 
+  async function neteaseSearchDirect(keyword) {
+    const resp = await fetch('https://apis.netstart.cn/music/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ keywords: keyword, type: 1, limit: 999999, offset: 0 }).toString()
+    })
+    if (!resp.ok) throw new Error('网易云服务请求失败')
+    const data = await resp.json()
+    if (!data.result || !data.result.songs || data.result.songs.length === 0) {
+      return { songs: [], message: '未找到相关歌曲' }
+    }
+    const songs = data.result.songs.map(s => ({
+      id: s.id,
+      title: s.name,
+      artist: (s.artists || s.ar || []).map(a => a.name).join(' / '),
+      album: (s.album || s.al || {}).name || '',
+      duration: Math.round((s.duration || s.dt || 0) / 1000),
+      cover: (s.album || s.al || {}).picUrl || '',
+      external_url: `https://music.163.com/song/media/outer/url?id=${s.id}.mp3`
+    }))
+    return { songs }
+  }
+
+  async function neteasePlaylistDirect(id) {
+    const resp = await fetch('https://apis.netstart.cn/music/playlist/detail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ id, n: 100000 }).toString()
+    })
+    if (!resp.ok) throw new Error('网易云服务请求失败')
+    const data = await resp.json()
+    if (!data.playlist) throw new Error('无法获取歌单')
+    const playlist = data.playlist
+    const songs = (playlist.tracks || []).map(s => ({
+      id: s.id,
+      title: s.name,
+      artist: (s.ar || s.artists || []).map(a => a.name).join(' / '),
+      album: (s.al || s.album || {}).name || '',
+      duration: Math.round((s.dt || s.duration || 0) / 1000),
+      cover: (s.al || s.album || {}).picUrl || '',
+      external_url: `https://music.163.com/song/media/outer/url?id=${s.id}.mp3`
+    }))
+    return {
+      name: playlist.name,
+      description: playlist.description || '',
+      cover: playlist.coverImgUrl || '',
+      trackCount: playlist.trackCount || songs.length,
+      songs
+    }
+  }
+
   async function handlePlatformSearch() {
     if (!platformKeyword.trim()) return
     platformSearching = true
@@ -148,7 +199,11 @@
     try {
       let data
       if (platform === 'netease') {
-        data = await music.neteaseSearch(platformKeyword.trim())
+        try {
+          data = await neteaseSearchDirect(platformKeyword.trim())
+        } catch {
+          data = await music.neteaseSearch(platformKeyword.trim())
+        }
       } else if (platform === 'qq') {
         data = await music.qqSearch(platformKeyword.trim())
       } else if (platform === 'kugou') {
@@ -203,7 +258,11 @@
       if (platform === 'qq') {
         data = await music.qqPlaylist(id)
       } else {
-        data = await music.neteasePlaylist(id)
+        try {
+          data = await neteasePlaylistDirect(id)
+        } catch {
+          data = await music.neteasePlaylist(id)
+        }
       }
       playlistData = data
     } catch (e) {

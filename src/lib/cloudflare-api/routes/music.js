@@ -431,6 +431,63 @@ export function registerMusicRoutes(app) {
     }
   })
 
+  app.get('/api/music/netease/debug', async (c) => {
+    const user = c.get('user')
+    if (!user) return c.json({ error: '未认证' }, 401)
+
+    const keyword = c.req.query('keyword') || '周杰伦'
+    const results = {}
+
+    try {
+      const resp = await fetch('https://apis.netstart.cn/music/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ keywords: keyword, type: 1, limit: 5, offset: 0 }).toString(),
+        signal: AbortSignal.timeout(10000)
+      })
+      results.netstart_status = resp.status
+      results.netstart_ok = resp.ok
+      const text = await resp.text()
+      results.netstart_raw_length = text.length
+      try {
+        const json = JSON.parse(text)
+        results.netstart_code = json.code
+        results.netstart_has_result = !!json.result
+        results.netstart_has_songs = !!(json.result && json.result.songs)
+        results.netstart_song_count = json.result && json.result.songs ? json.result.songs.length : 0
+      } catch {
+        results.netstart_parse_error = true
+        results.netstart_raw_preview = text.substring(0, 200)
+      }
+    } catch (e) {
+      results.netstart_error = e.message
+    }
+
+    try {
+      const resp = await fetch(`https://interface3.music.163.com/api/search/get/web?s=${encodeURIComponent(keyword)}&type=1&limit=5&offset=0`, {
+        headers: NETEASE_HEADERS,
+        signal: AbortSignal.timeout(10000)
+      })
+      results.direct_status = resp.status
+      results.direct_ok = resp.ok
+      const text = await resp.text()
+      results.direct_raw_length = text.length
+      try {
+        const json = JSON.parse(text)
+        results.direct_code = json.code
+        results.direct_has_result = !!json.result
+        results.direct_has_songs = !!(json.result && json.result.songs)
+      } catch {
+        results.direct_parse_error = true
+        results.direct_raw_preview = text.substring(0, 200)
+      }
+    } catch (e) {
+      results.direct_error = e.message
+    }
+
+    return c.json(results)
+  })
+
   app.get('/api/music/netease/song/:id', async (c) => {
     const user = c.get('user')
     if (!user) return c.json({ error: '未认证' }, 401)
