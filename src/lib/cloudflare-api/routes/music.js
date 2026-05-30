@@ -292,6 +292,33 @@ export function registerMusicRoutes(app) {
     }
   })
 
+  app.post('/api/music/batch-delete', async (c) => {
+    const user = c.get('user')
+    if (!user) return c.json({ error: '未认证' }, 401)
+
+    try {
+      const { ids } = await c.req.json()
+      if (!ids || !Array.isArray(ids) || ids.length === 0) {
+        return c.json({ error: '请提供要删除的歌曲ID列表' }, 400)
+      }
+
+      let deleted = 0
+      for (const id of ids) {
+        const song = await c.env.DB.prepare('SELECT source FROM music WHERE id = ?').bind(id).first()
+        if (!song) continue
+        if (song.source !== 'external') {
+          await deleteChunks(c.env.DB, id)
+        }
+        await c.env.DB.prepare('DELETE FROM music WHERE id = ?').bind(id).run()
+        deleted++
+      }
+
+      return c.json({ deleted, total: ids.length })
+    } catch (err) {
+      return c.json({ error: '服务器内部错误' }, 500)
+    }
+  })
+
   app.post('/api/music/batch', async (c) => {
     const user = c.get('user')
     if (!user) return c.json({ error: '未认证' }, 401)

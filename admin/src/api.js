@@ -465,6 +465,7 @@ export const music = {
   batch(songs) { return request('/music/batch', { method: 'POST', body: JSON.stringify({ songs }) }) },
   update(id, data) { return request(`/music/${id}`, { method: 'PUT', body: JSON.stringify(data) }) },
   delete(id) { return request(`/music/${id}`, { method: 'DELETE' }) },
+  batchDelete(ids) { return request('/music/batch-delete', { method: 'POST', body: JSON.stringify({ ids }) }) },
   neteaseSearch(keyword) { return request(`/music/netease/search?keyword=${encodeURIComponent(keyword)}`) },
   neteasePlaylist(id) { return request(`/music/netease/playlist/${id}`) },
   neteaseImport(songs) { return request('/music/netease/import', { method: 'POST', body: JSON.stringify({ songs }) }) },

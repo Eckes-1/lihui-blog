@@ -17,6 +17,11 @@
   let formSaving = $state(false)
 
   let deletingId = $state(null)
+  let batchDeleteIds = $state([])
+  let showBatchDeleteConfirm = $state(false)
+
+  let selectedIds = $state(new Set())
+  let selectMode = $state(false)
 
   let activeTab = $state('list')
   let platform = $state('netease')
@@ -42,6 +47,13 @@
   let sourceFilter = $state('')
   let coverUpdating = $state(false)
 
+  let sortField = $state('created_at')
+  let sortDir = $state('desc')
+
+  let previewSong = $state(null)
+  let previewPlaying = $state(false)
+  let audioEl = $state(null)
+
   let filteredSongs = $derived(
     sourceFilter
       ? songs.filter(s => s.source === sourceFilter || (!s.source && sourceFilter === 'upload'))
@@ -55,10 +67,28 @@
     }) : filteredSongs
   )
 
+  let sortedSongs = $derived.by(() => {
+    const arr = [...searchFiltered]
+    const dir = sortDir === 'asc' ? 1 : -1
+    return arr.sort((a, b) => {
+      let va, vb
+      switch (sortField) {
+        case 'title': va = (a.title || '').toLowerCase(); vb = (b.title || '').toLowerCase(); break
+        case 'artist': va = (a.artist || '').toLowerCase(); vb = (b.artist || '').toLowerCase(); break
+        case 'duration': va = a.duration || 0; vb = b.duration || 0; break
+        case 'source': va = a.source || ''; vb = b.source || ''; break
+        default: va = a.created_at || ''; vb = b.created_at || ''
+      }
+      if (va < vb) return -1 * dir
+      if (va > vb) return 1 * dir
+      return 0
+    })
+  })
+
   $effect(() => { search; sourceFilter; musicPage = 1 })
 
-  let totalPages = $derived(Math.max(1, Math.ceil(searchFiltered.length / musicPageSize)))
-  let pagedSongs = $derived(searchFiltered.slice((musicPage - 1) * musicPageSize, musicPage * musicPageSize))
+  let totalPages = $derived(Math.max(1, Math.ceil(sortedSongs.length / musicPageSize)))
+  let pagedSongs = $derived(sortedSongs.slice((musicPage - 1) * musicPageSize, musicPage * musicPageSize))
 
   let stats = $derived({
     total: songs.length,
@@ -66,8 +96,27 @@
     qq: songs.filter(s => s.source === 'qq').length,
     kugou: songs.filter(s => s.source === 'kugou').length,
     external: songs.filter(s => s.source === 'external').length,
-    upload: songs.filter(s => s.source === 'upload' || !s.source).length
+    upload: songs.filter(s => s.source === 'upload' || !s.source).length,
+    totalDuration: songs.reduce((sum, s) => sum + (s.duration || 0), 0),
+    withCover: songs.filter(s => s.cover_path).length,
+    withoutCover: songs.filter(s => !s.cover_path).length
   })
+
+  let allSelected = $derived(pagedSongs.length > 0 && pagedSongs.every(s => selectedIds.has(s.id)))
+
+  function toggleSort(field) {
+    if (sortField === field) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc'
+    } else {
+      sortField = field
+      sortDir = 'asc'
+    }
+  }
+
+  function sortIcon(field) {
+    if (sortField !== field) return ''
+    return sortDir === 'asc' ? ' ↑' : ' ↓'
+  }
 
   async function loadData(silent = false) {
     if (!silent) loading = true
@@ -147,11 +196,105 @@
       await music.delete(id)
       addToast('已删除', 'success')
       deletingId = null
+      selectedIds.delete(id)
       loadData()
     } catch (e) {
       addToast(e.message || '删除失败', 'error')
       deletingId = null
     }
+  }
+
+  async function handleBatchDelete() {
+    if (batchDeleteIds.length === 0) return
+    try {
+      const result = await music.batchDelete(batchDeleteIds)
+      addToast(`已删除 ${result.deleted} 首歌曲`, 'success')
+      showBatchDeleteConfirm = false
+      batchDeleteIds = []
+      selectedIds = new Set()
+      selectMode = false
+      loadData()
+    } catch (e) {
+      addToast(e.message || '批量删除失败', 'error')
+      showBatchDeleteConfirm = false
+    }
+  }
+
+  function enterSelectMode() {
+    selectMode = true
+    selectedIds = new Set()
+  }
+
+  function exitSelectMode() {
+    selectMode = false
+    selectedIds = new Set()
+  }
+
+  function toggleSelect(id) {
+    const next = new Set(selectedIds)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    selectedIds = next
+  }
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      const idsToRemove = new Set(pagedSongs.map(s => s.id))
+      const next = new Set(selectedIds)
+      for (const id of idsToRemove) next.delete(id)
+      selectedIds = next
+    } else {
+      const next = new Set(selectedIds)
+      pagedSongs.forEach(s => next.add(s.id))
+      selectedIds = next
+    }
+  }
+
+  function confirmBatchDelete() {
+    batchDeleteIds = [...selectedIds]
+    showBatchDeleteConfirm = true
+  }
+
+  function preview(song) {
+    if (previewSong && previewSong.id === song.id) {
+      if (previewPlaying && audioEl) {
+        audioEl.pause()
+        previewPlaying = false
+      } else if (audioEl) {
+        audioEl.play()
+        previewPlaying = true
+      }
+      return
+    }
+    if (audioEl) {
+      audioEl.pause()
+      audioEl = null
+    }
+    previewSong = song
+    previewPlaying = true
+    const url = song.external_url
+      ? `/api/music/stream/${song.id}`
+      : `/api/music/stream/${song.id}`
+    const a = new Audio(url)
+    a.addEventListener('ended', () => { previewPlaying = false })
+    a.addEventListener('error', () => {
+      previewPlaying = false
+      addToast('播放失败，音频源不可用', 'error')
+    })
+    a.play().catch(() => {
+      previewPlaying = false
+      addToast('播放失败', 'error')
+    })
+    audioEl = a
+  }
+
+  function stopPreview() {
+    if (audioEl) {
+      audioEl.pause()
+      audioEl = null
+    }
+    previewSong = null
+    previewPlaying = false
   }
 
   const NETEASE_API = 'https://neteasecloudmusicapi.ivelly.com'
@@ -386,6 +529,19 @@
     return m + ':' + (sec < 10 ? '0' : '') + sec
   }
 
+  function formatDuration(totalSeconds) {
+    if (!totalSeconds) return '0分钟'
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    if (hours > 0) return `${hours}小时${minutes}分钟`
+    return `${minutes}分钟`
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '--'
+    return dateStr.slice(0, 16).replace('T', ' ')
+  }
+
   function toggleSelection(set, id) {
     const next = new Set(set)
     if (next.has(id)) next.delete(id)
@@ -403,7 +559,7 @@
     const off = onSSE((data) => {
       if (data.resources.includes('music')) loadData(true)
     })
-    return off
+    return () => { off(); stopPreview() }
   })
 </script>
 
@@ -452,6 +608,25 @@
     </button>
   </div>
 
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+    <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700 p-3 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+      <p class="text-xs text-gray-500 dark:text-gray-400">总时长</p>
+      <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatDuration(stats.totalDuration)}</p>
+    </div>
+    <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700 p-3 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+      <p class="text-xs text-gray-500 dark:text-gray-400">有封面</p>
+      <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{stats.withCover} / {stats.total}</p>
+    </div>
+    <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700 p-3 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+      <p class="text-xs text-gray-500 dark:text-gray-400">缺少封面</p>
+      <p class="text-sm font-semibold text-orange-500 dark:text-orange-400">{stats.withoutCover}</p>
+    </div>
+    <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-gray-700 p-3 shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
+      <p class="text-xs text-gray-500 dark:text-gray-400">平均时长</p>
+      <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{stats.total > 0 ? formatTime(Math.round(stats.totalDuration / stats.total)) : '--'}</p>
+    </div>
+  </div>
+
   <div class="flex gap-2 border-b border-gray-200 dark:border-gray-700">
     <button
       onclick={() => activeTab = 'list'}
@@ -468,14 +643,39 @@
   </div>
 
   {#if activeTab === 'list'}
-    <div class="relative">
-      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-      <input
-        type="text"
-        placeholder="搜索歌曲..."
-        bind:value={search}
-        class="w-full max-w-xs pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-sm focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent outline-none"
-      />
+    <div class="flex items-center gap-2 flex-wrap">
+      <div class="relative flex-1 min-w-[180px] max-w-xs">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input
+          type="text"
+          placeholder="搜索歌曲..."
+          bind:value={search}
+          class="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-sm focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent outline-none"
+        />
+      </div>
+      {#if selectMode}
+        <div class="flex items-center gap-2">
+          <label class="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+            <input type="checkbox" checked={allSelected} onchange={toggleSelectAll} class="rounded" />
+            <span class="whitespace-nowrap">本页全选</span>
+          </label>
+          <span class="text-xs text-gray-400 dark:text-gray-500">已选 {selectedIds.size} 首</span>
+          <button
+            onclick={confirmBatchDelete}
+            disabled={selectedIds.size === 0}
+            class="px-3 py-1.5 rounded-full bg-red-500/70 text-white text-xs font-medium transition-colors hover:bg-red-600/70 disabled:opacity-50 disabled:cursor-not-allowed"
+          >删除选中</button>
+          <button
+            onclick={exitSelectMode}
+            class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium transition-colors hover:bg-white/60 dark:hover:bg-gray-700/60"
+          >取消</button>
+        </div>
+      {:else}
+        <button
+          onclick={enterSelectMode}
+          class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium transition-colors hover:bg-white/60 dark:hover:bg-gray-700/60"
+        >批量选择</button>
+      {/if}
     </div>
 
     <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -483,20 +683,27 @@
         <table class="w-full">
           <thead>
             <tr class="border-b border-white/20 dark:border-gray-700/20 bg-white/40 dark:bg-gray-800/40">
-              <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-10">#</th>
+              {#if selectMode}
+                <th class="text-left px-3 py-3 w-10">
+                  <input type="checkbox" checked={allSelected} onchange={toggleSelectAll} class="rounded" />
+                </th>
+              {/if}
+              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-10">#</th>
               <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase w-12"></th>
-              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">歌曲</th>
-              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">来源</th>
-              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">时长</th>
+              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300" onclick={() => toggleSort('title')}>歌曲{sortIcon('title')}</th>
+              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300" onclick={() => toggleSort('artist')}>艺术家{sortIcon('artist')}</th>
+              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300" onclick={() => toggleSort('source')}>来源{sortIcon('source')}</th>
+              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300" onclick={() => toggleSort('duration')}>时长{sortIcon('duration')}</th>
+              <th class="text-left px-3 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300 hidden sm:table-cell" onclick={() => toggleSort('created_at')}>添加时间{sortIcon('created_at')}</th>
               <th class="text-right px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">操作</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-white/10 dark:divide-gray-700/10">
             {#if loading}
-              <tr><td colspan="6" class="px-5 py-8 text-center text-gray-400 dark:text-gray-500">加载中...</td></tr>
+              <tr><td colspan="{selectMode ? 9 : 8}" class="px-5 py-8 text-center text-gray-400 dark:text-gray-500">加载中...</td></tr>
             {:else if searchFiltered.length === 0}
               <tr>
-                <td colspan="6" class="px-5 py-12 text-center">
+                <td colspan="{selectMode ? 9 : 8}" class="px-5 py-12 text-center">
                   <div class="flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500">
                     <svg viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 opacity-40"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
                     <span class="text-sm">{search ? '没有找到匹配的歌曲' : '还没有添加歌曲'}</span>
@@ -508,8 +715,13 @@
               </tr>
             {:else}
               {#each pagedSongs as song, i}
-                <tr class="hover:bg-white/30 dark:hover:bg-gray-700/30 transition-colors">
-                  <td class="px-5 py-3 text-sm text-gray-400 dark:text-gray-500 text-center">{(musicPage - 1) * musicPageSize + i + 1}</td>
+                <tr class="hover:bg-white/30 dark:hover:bg-gray-700/30 transition-colors {selectedIds.has(song.id) ? 'bg-blue-50/40 dark:bg-blue-900/20' : ''}">
+                  {#if selectMode}
+                    <td class="px-3 py-3">
+                      <input type="checkbox" checked={selectedIds.has(song.id)} onchange={() => toggleSelect(song.id)} class="rounded" />
+                    </td>
+                  {/if}
+                  <td class="px-3 py-3 text-sm text-gray-400 dark:text-gray-500 text-center">{(musicPage - 1) * musicPageSize + i + 1}</td>
                   <td class="px-3 py-3">
                     <div class="w-9 h-9 rounded-lg overflow-hidden bg-gray-200/50 dark:bg-gray-700/50 flex items-center justify-center relative">
                       <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-gray-400 dark:text-gray-500"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
@@ -532,8 +744,10 @@
                     </div>
                   </td>
                   <td class="px-3 py-3">
-                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-[200px]">{song.title}</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{song.artist || '未知艺术家'}</div>
+                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-[160px]">{song.title}</div>
+                  </td>
+                  <td class="px-3 py-3">
+                    <div class="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[120px]">{song.artist || '未知艺术家'}</div>
                   </td>
                   <td class="px-3 py-3 whitespace-nowrap">
                     {#if song.source === 'netease'}
@@ -549,13 +763,22 @@
                     {/if}
                   </td>
                   <td class="px-3 py-3 text-sm text-gray-500 dark:text-gray-400 tabular-nums">{song.duration ? formatTime(song.duration) : '--'}</td>
+                  <td class="px-3 py-3 text-xs text-gray-400 dark:text-gray-500 hidden sm:table-cell whitespace-nowrap">{formatDate(song.created_at)}</td>
                   <td class="px-3 sm:px-5 py-3 text-right whitespace-nowrap">
                     <div class="flex items-center justify-end gap-1 flex-nowrap">
-                      <button onclick={() => openEdit(song)} class="text-xs px-2 py-1 sm:px-2.5 rounded-full text-gray-900 dark:text-gray-100 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors whitespace-nowrap">编辑</button>
-                      {#if song.external_url}
-                        <a href={song.external_url} target="_blank" rel="noopener" class="text-xs px-2 py-1 sm:px-2.5 rounded-full text-gray-500 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors whitespace-nowrap">链接</a>
-                      {/if}
-                      <button onclick={() => deletingId = song.id} class="text-xs px-2 py-1 sm:px-2.5 rounded-full text-red-600 dark:text-red-400 hover:bg-red-50/60 dark:hover:bg-red-900/30 transition-colors whitespace-nowrap">删除</button>
+                      <button
+                        onclick={() => preview(song)}
+                        class="text-xs px-2 py-1 rounded-full {previewSong && previewSong.id === song.id && previewPlaying ? 'text-blue-600 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-900/30' : 'text-gray-500 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-gray-700/60'} transition-colors whitespace-nowrap"
+                        title={previewSong && previewSong.id === song.id && previewPlaying ? '暂停' : '试听'}
+                      >
+                        {#if previewSong && previewSong.id === song.id && previewPlaying}
+                          <svg class="w-3.5 h-3.5 inline-block" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                        {:else}
+                          <svg class="w-3.5 h-3.5 inline-block" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        {/if}
+                      </button>
+                      <button onclick={() => openEdit(song)} class="text-xs px-2 py-1 rounded-full text-gray-900 dark:text-gray-100 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors whitespace-nowrap">编辑</button>
+                      <button onclick={() => deletingId = song.id} class="text-xs px-2 py-1 rounded-full text-red-600 dark:text-red-400 hover:bg-red-50/60 dark:hover:bg-red-900/30 transition-colors whitespace-nowrap">删除</button>
                     </div>
                   </td>
                 </tr>
@@ -575,6 +798,7 @@
               <option value="10" selected={musicPageSize === 10}>10条/页</option>
               <option value="20" selected={musicPageSize === 20}>20条/页</option>
               <option value="50" selected={musicPageSize === 50}>50条/页</option>
+              <option value="100" selected={musicPageSize === 100}>100条/页</option>
             </select>
           </div>
           <div class="flex gap-2 shrink-0">
@@ -822,6 +1046,19 @@
       <div class="flex justify-end gap-3">
         <button onclick={() => deletingId = null} class="px-4 py-2 rounded-full border border-white/30 dark:border-gray-700/30 bg-white/40 dark:bg-gray-800/40 backdrop-blur text-sm text-gray-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">取消</button>
         <button onclick={() => handleDelete(deletingId)} class="px-4 py-2 rounded-full bg-red-500/70 dark:bg-red-600/70 backdrop-blur hover:bg-red-600/70 dark:hover:bg-red-700/70 text-white dark:text-gray-100 text-sm transition-colors">删除</button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+{#if showBatchDeleteConfirm}
+  <div class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50" onclick={() => showBatchDeleteConfirm = false}>
+    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] p-6 max-w-sm w-full mx-4 border border-white/20 dark:border-gray-700/20" onclick={(e) => e.stopPropagation()}>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">批量删除确认</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">确定要删除选中的 <span class="font-semibold text-red-600 dark:text-red-400">{batchDeleteIds.length}</span> 首歌曲吗？此操作不可撤销。</p>
+      <div class="flex justify-end gap-3">
+        <button onclick={() => showBatchDeleteConfirm = false} class="px-4 py-2 rounded-full border border-white/30 dark:border-gray-700/30 bg-white/40 dark:bg-gray-800/40 backdrop-blur text-sm text-gray-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">取消</button>
+        <button onclick={handleBatchDelete} class="px-4 py-2 rounded-full bg-red-500/70 dark:bg-red-600/70 backdrop-blur hover:bg-red-600/70 dark:hover:bg-red-700/70 text-white dark:text-gray-100 text-sm transition-colors">删除 {batchDeleteIds.length} 首</button>
       </div>
     </div>
   </div>
