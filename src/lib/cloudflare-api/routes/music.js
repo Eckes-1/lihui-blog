@@ -302,18 +302,32 @@ export function registerMusicRoutes(app) {
         return c.json({ error: '请提供要删除的歌曲ID列表' }, 400)
       }
 
-      let deleted = 0
-      for (const id of ids) {
-        const song = await c.env.DB.prepare('SELECT source FROM music WHERE id = ?').bind(id).first()
-        if (!song) continue
-        if (song.source !== 'external') {
-          await deleteChunks(c.env.DB, id)
-        }
-        await c.env.DB.prepare('DELETE FROM music WHERE id = ?').bind(id).run()
-        deleted++
+      const placeholders = ids.map(() => '?').join(',')
+      const songs = await c.env.DB.prepare(
+        `SELECT id, source FROM music WHERE id IN (${placeholders})`
+      ).bind(...ids).all()
+
+      if (!songs.results || songs.results.length === 0) {
+        return c.json({ deleted: 0, total: ids.length })
       }
 
-      return c.json({ deleted, total: ids.length })
+      const foundIds = songs.results.map(s => s.id)
+      const needChunkDelete = songs.results.filter(s => s.source !== 'external').map(s => s.id)
+
+      const stmts = []
+      for (const id of needChunkDelete) {
+        stmts.push(c.env.DB.prepare('DELETE FROM music_chunks WHERE music_id = ?').bind(id))
+      }
+      const deletePlaceholders = foundIds.map(() => '?').join(',')
+      stmts.push(c.env.DB.prepare(
+        `DELETE FROM music WHERE id IN (${deletePlaceholders})`
+      ).bind(...foundIds))
+
+      if (stmts.length > 0) {
+        await c.env.DB.batch(stmts)
+      }
+
+      return c.json({ deleted: foundIds.length, total: ids.length })
     } catch (err) {
       return c.json({ error: '服务器内部错误' }, 500)
     }
