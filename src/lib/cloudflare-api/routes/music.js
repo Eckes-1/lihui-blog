@@ -109,6 +109,25 @@ export function registerMusicRoutes(app) {
 
       if (!song) return c.json({ error: '歌曲不存在' }, 404)
 
+      if (song.source === 'netease' && song.external_url) {
+        const idMatch = song.external_url.match(/id=(\d+)/)
+        if (idMatch) {
+          try {
+            const songData = await metingProxy('netease', 'song', idMatch[1])
+            if (songData && Array.isArray(songData) && songData.length > 0 && songData[0].url) {
+              return c.redirect(songData[0].url, 302)
+            }
+          } catch {}
+          try {
+            const songUrlData = await safeFetch(`${NETEASE_API}/song/url?id=${idMatch[1]}`, {})
+            if (songUrlData && songUrlData.data && Array.isArray(songUrlData.data) && songUrlData.data.length > 0 && songUrlData.data[0].url) {
+              return c.redirect(songUrlData.data[0].url, 302)
+            }
+          } catch {}
+          return c.json({ error: '无法获取播放链接，该歌曲可能为VIP专属或已下架' }, 404)
+        }
+      }
+
       if (song.source === 'qq' && song.external_url && song.external_url.startsWith('tencent:')) {
         const songMid = song.external_url.replace('tencent:', '')
         try {
