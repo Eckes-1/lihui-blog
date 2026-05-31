@@ -112,17 +112,23 @@ export function registerMusicRoutes(app) {
       if (song.source === 'kuwo' && song.external_url && song.external_url.startsWith('kuwo:')) {
         const rid = song.external_url.replace('kuwo:', '')
         try {
-          const urlResp = await safeFetch(
+          const urlResp = await fetch(
             `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=MUSIC_${rid}&format=mp3&response=url`,
-            { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+            { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }, signal: AbortSignal.timeout(10000) }
           )
-          let playUrl = ''
-          if (urlResp) {
-            if (typeof urlResp === 'string') playUrl = urlResp
-            else if (urlResp.url) playUrl = urlResp.url
-            else if (urlResp.data && urlResp.data.url) playUrl = urlResp.data.url
+          if (urlResp.ok) {
+            const text = await urlResp.text()
+            let playUrl = ''
+            if (text.startsWith('http')) {
+              playUrl = text.trim()
+            } else {
+              try {
+                const json = JSON.parse(text)
+                playUrl = json.url || (json.data && json.data.url) || ''
+              } catch {}
+            }
+            if (playUrl) return c.redirect(playUrl, 302)
           }
-          if (playUrl) return c.redirect(playUrl, 302)
         } catch {}
         try {
           const songData = await metingProxy('kuwo', 'song', rid)
@@ -1081,10 +1087,31 @@ export function registerMusicRoutes(app) {
 
     try {
       const searchUrl = `http://search.kuwo.cn/r.s?all=${encodeURIComponent(keyword)}&ft=music&itemset=web_2013&client=kt&pn=0&rn=100&rformat=json&encoding=utf8`
-      const data = await safeFetch(searchUrl, {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Referer': 'http://www.kuwo.cn/search/list'
-      })
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 10000)
+      let data = null
+      try {
+        const resp = await fetch(searchUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Referer': 'http://www.kuwo.cn/search/list'
+          },
+          signal: controller.signal
+        })
+        if (resp.ok) {
+          const text = await resp.text()
+          try {
+            data = JSON.parse(text)
+          } catch {
+            try {
+              const fixed = text.replace(/'/g, '"').replace(/(\w+):/g, '"$1":')
+              data = JSON.parse(fixed)
+            } catch {
+              try { data = (new Function('return ' + text))() } catch {}
+            }
+          }
+        }
+      } catch {} finally { clearTimeout(timer) }
 
       if (!data || !data.abslist || data.abslist.length === 0) {
         return c.json({ songs: [], message: '未找到相关歌曲' })
@@ -1094,11 +1121,11 @@ export function registerMusicRoutes(app) {
         const rid = (s.MUSICRID || '').replace('MUSIC_', '')
         return {
           id: rid,
-          title: (s.SONGNAME || '').replace(/&nbsp;/g, ' ').trim(),
+          title: (s.SONGNAME || s.NAME || '').replace(/&nbsp;/g, ' ').trim(),
           artist: (s.ARTIST || '').replace(/&nbsp;/g, ' ').trim(),
           album: (s.ALBUM || '').replace(/&nbsp;/g, ' ').trim(),
-          duration: 0,
-          cover: s.MVPIC ? `https://img4.kuwo.cn/star/albumcover/300/35/30/${s.MVPIC}` : '',
+          duration: s.DURATION ? Math.round(Number(s.DURATION)) : 0,
+          cover: s.MVPIC ? `https://img4.kuwo.cn/star/albumcover/300/35/30/${s.MVPIC}` : (s.web_albumpic_short ? `https://img4.kuwo.cn/star/albumcover/${s.web_albumpic_short}` : ''),
           external_url: `kuwo:${rid}`
         }
       })
@@ -1115,21 +1142,24 @@ export function registerMusicRoutes(app) {
 
     const rid = c.req.param('rid')
     try {
-      const urlResp = await safeFetch(
-        `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=MUSIC_${rid}&format=mp3&response=url`,
-        { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-      )
-
       let playUrl = ''
-      if (urlResp) {
-        if (typeof urlResp === 'string') {
-          playUrl = urlResp
-        } else if (urlResp.url) {
-          playUrl = urlResp.url
-        } else if (urlResp.data && urlResp.data.url) {
-          playUrl = urlResp.data.url
+      try {
+        const urlResp = await fetch(
+          `http://antiserver.kuwo.cn/anti.s?type=convert_url&rid=MUSIC_${rid}&format=mp3&response=url`,
+          { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }, signal: AbortSignal.timeout(10000) }
+        )
+        if (urlResp.ok) {
+          const text = await urlResp.text()
+          if (text.startsWith('http')) {
+            playUrl = text.trim()
+          } else {
+            try {
+              const json = JSON.parse(text)
+              playUrl = json.url || (json.data && json.data.url) || ''
+            } catch {}
+          }
         }
-      }
+      } catch {}
 
       if (!playUrl) {
         const metingData = await metingProxy('kuwo', 'song', rid)
@@ -1138,14 +1168,16 @@ export function registerMusicRoutes(app) {
         }
       }
 
-      const infoUrl = `http://m.kuwo.cn/newh5/singles/songinfo?mid=${rid}`
       let songInfo = {}
       try {
-        const infoData = await safeFetch(infoUrl, {
-          'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15',
-          'Referer': 'http://m.kuwo.cn/'
+        const infoResp = await fetch(`http://m.kuwo.cn/newh5/singles/songinfo?mid=${rid}`, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)', 'Referer': 'http://m.kuwo.cn/' },
+          signal: AbortSignal.timeout(10000)
         })
-        if (infoData && infoData.data) songInfo = infoData.data
+        if (infoResp.ok) {
+          const infoData = await infoResp.json()
+          if (infoData && infoData.data) songInfo = infoData.data
+        }
       } catch {}
 
       return c.json({
